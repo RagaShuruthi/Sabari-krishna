@@ -1,0 +1,1497 @@
+/* =========================================================
+   FOR SABARI ⚽ — ANIMATED DIGITAL STORY
+   Palette: Warm Cream (#FFF9F0), Soft Argentina Blue (#74B9E6),
+   Deep Navy (#172B4D), White (#FFFFFF), Warm Gold (#F5B041)
+   ========================================================= */
+
+:root {
+  --bg-cream: #FFF9F0;
+  --bg-field: #E8F5E9;
+  --arg-blue: #74B9E6;
+  --arg-blue-light: #E8F4FC;
+  --navy: #172B4D;
+  --navy-muted: #4A5D78;
+  --gold: #F5B041;
+  --gold-light: #FFF8EB;
+  --white: #FFFFFF;
+  --tape-color: rgba(238, 230, 215, 0.88);
+
+  --font-round: 'Fredoka', -apple-system, sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+
+  --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.animated-story-world {
+  font-family: var(--font-body);
+  background-color: var(--bg-cream);
+  color: var(--navy);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  user-select: none;
+}
+
+/* Fullscreen Physics & FX Canvas */
+#cinemaCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 90;
+}
+
+/* Minimal HUD (Top Corner Stickers) */
+.story-hud {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sound-sticker {
+  background: var(--white);
+  border: 1.5px solid rgba(23, 43, 77, 0.12);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.06);
+  transition: transform 0.2s ease;
+}
+.sound-sticker:hover {
+  transform: scale(1.08);
+}
+
+.scene-progress {
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy-muted);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+/* Universal Speech Bubble */
+.speech-bubble {
+  position: fixed;
+  z-index: 95;
+  background: var(--white);
+  border: 2px solid var(--navy);
+  border-radius: 18px;
+  padding: 12px 20px;
+  max-width: 280px;
+  box-shadow: 0 8px 24px rgba(23, 43, 77, 0.15);
+  transform: scale(0.95);
+  animation: bubblePop 0.35s var(--ease-elastic) forwards;
+  pointer-events: none;
+}
+@keyframes bubblePop {
+  0% { transform: scale(0.4) translateY(10px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.bubble-text {
+  font-family: var(--font-hand);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.25;
+}
+
+.bubble-tail {
+  position: absolute;
+  bottom: -12px;
+  left: 28px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 12px solid var(--navy);
+}
+.bubble-tail::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid var(--white);
+}
+
+/* Universal Scene Viewport & Fullscreen Transitions */
+.scene-viewport {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.full-scene {
+  display: none;
+  width: 100vw;
+  min-height: 100vh;
+  padding: 40px 20px;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-cinematic);
+}
+
+.full-scene.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+}
+
+.scene-inner-content {
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Handwritten Sticker Buttons */
+.sticker-btn {
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  font-family: var(--font-hand);
+  font-size: 1.55rem;
+  font-weight: 700;
+  padding: 12px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(23, 43, 77, 0.18);
+  transition: all 0.25s var(--ease-elastic);
+  position: relative;
+}
+.sticker-btn:hover {
+  transform: scale(1.06) rotate(-1deg);
+  background: #253858;
+}
+.sticker-btn:active {
+  transform: scale(0.95);
+}
+
+.gold-sticker {
+  background: linear-gradient(135deg, var(--gold) 0%, #E69B1E 100%);
+  color: var(--white);
+  box-shadow: 0 8px 24px rgba(245, 176, 65, 0.35);
+}
+
+.huge-vamos-sticker {
+  font-size: 2.2rem;
+  padding: 20px 50px;
+  background: linear-gradient(135deg, var(--arg-blue) 0%, #3D88C7 100%);
+  border-radius: 50px;
+  box-shadow: 0 12px 36px rgba(116, 185, 230, 0.4);
+  animation: pulseSticker 2s infinite;
+}
+@keyframes pulseSticker {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.restart-sticker {
+  background: transparent;
+  border: 2px dashed var(--navy-muted);
+  color: var(--navy-muted);
+  font-size: 1.2rem;
+  box-shadow: none;
+}
+.restart-sticker:hover {
+  background: var(--white);
+  color: var(--navy);
+}
+
+/* ================= SCENE 1: THE EMPTY STADIUM ================= */
+.scene-stadium {
+  background: linear-gradient(180deg, #F0F7FD 0%, #E2F0D9 65%, #CBE3BD 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+.stadium-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  pointer-events: none;
+}
+
+.stadium-lights-glow {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
+  height: 120px;
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.grass-field {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  background: #C4E0B2;
+  border-top: 4px solid #A9D18E;
+}
+
+.pitch-marking-circle {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 180px;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+}
+
+.pitch-chalk-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* Animated Rolling Ball in Scene 1 */
+.animated-ball {
+  position: absolute;
+  bottom: 12%;
+  left: -80px;
+  width: 58px;
+  height: 58px;
+  z-index: 20;
+  transition: transform 0.1s linear;
+}
+
+.svg-ball {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 12px rgba(23, 43, 77, 0.18));
+}
+
+/* Cartoon Messi Element */
+.cartoon-messi {
+  position: absolute;
+  bottom: 14%;
+  left: -120px;
+  width: 110px;
+  height: 146px;
+  z-index: 25;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-elastic);
+}
+
+.messi-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 16px rgba(23, 43, 77, 0.2));
+}
+
+.scene-narrative-box {
+  position: relative;
+  z-index: 30;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  padding: 24px 32px;
+  border-radius: 24px;
+  border: 2px solid var(--navy);
+  box-shadow: 0 16px 40px rgba(23, 43, 77, 0.12);
+  max-width: 440px;
+}
+
+.handwritten-annotation {
+  font-family: var(--font-hand);
+  font-size: 2.2rem;
+  color: var(--arg-blue);
+  line-height: 1;
+}
+
+.scene-bold-text {
+  font-family: var(--font-round);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 4px;
+}
+
+/* ================= SCENE 2: MESSI ASKS & RUNAWAY NO BUTTON ================= */
+.scene-room {
+  background: var(--bg-cream);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.messi-spotlight-actor {
+  width: 120px;
+  height: 160px;
+  margin: 0 auto;
+  animation: gentleBob 2.5s infinite ease-in-out alternate;
+}
+.messi-svg-scene2 {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 18px rgba(23, 43, 77, 0.16));
+}
+
+.scene2-preface {
+  font-family: var(--font-hand);
+  font-size: 1.6rem;
+  color: var(--navy-muted);
+}
+
+.scene2-headline {
+  font-family: var(--font-round);
+  font-size: clamp(2rem, 5.5vw, 3rem);
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.15;
+  margin-top: 4px;
+}
+
+.scene2-proud-shout {
+  font-family: var(--font-hand);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.scene2-question {
+  font-family: var(--font-round);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 12px;
+}
+
+/* Choice Arena for YES and Runaway NO */
+.choice-container-arena {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  min-height: 120px;
+  max-width: 500px;
+  margin: 24px auto 0;
+}
+
+.choice-yes-btn {
+  background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+  color: #FFFFFF;
+  border: none;
+  font-family: var(--font-round);
+  font-size: 1.6rem;
+  font-weight: 900;
+  padding: 18px 48px;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(39, 174, 96, 0.35);
+  transition: all 0.25s var(--ease-elastic);
+  animation: pulseGreen 2s infinite;
+}
+.choice-yes-btn:hover {
+  transform: scale(1.1) translateY(-3px);
+  box-shadow: 0 14px 34px rgba(39, 174, 96, 0.5);
+}
+@keyframes pulseGreen {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.choice-no-btn {
+  background: #E74C3C;
+  color: #FFFFFF;
+  border: none;
+  font-family: var(--font-round);
+  font-size: 1.4rem;
+  font-weight: 800;
+  padding: 16px 36px;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease;
+  user-select: none;
+  touch-action: none;
+}
+.choice-no-btn:hover {
+  background: #C0392B;
+}
+
+.dodge-funny-hint {
+  font-family: var(--font-hand);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #C0392B;
+  margin-top: 18px;
+  animation: bubblePop 0.3s var(--ease-elastic);
+}
+
+/* ================= SCENE 3: NATIONAL WINNER REVEAL ================= */
+.scene-winner-reveal {
+  background: var(--bg-cream);
+}
+
+.tiny-trophy-stage {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tiny-trophy-icon {
+  font-size: 3.5rem;
+  animation: floatTrophy 2s infinite ease-in-out;
+}
+@keyframes floatTrophy {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.tink-text {
+  font-family: var(--font-hand);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+/* Celebratory Poster Style */
+.celebratory-poster {
+  background: var(--white);
+  border: 3px solid var(--navy);
+  border-radius: 28px;
+  padding: 38px 24px;
+  box-shadow: 0 20px 50px rgba(23, 43, 77, 0.15);
+  animation: popPoster 0.5s var(--ease-elastic);
+}
+@keyframes popPoster {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.poster-trophy-huge {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.poster-stamp {
+  display: inline-block;
+  font-family: var(--font-round);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #27AE60;
+  border: 2px solid #27AE60;
+  padding: 4px 14px;
+  border-radius: 8px;
+  transform: rotate(-3deg);
+  margin-top: 8px;
+}
+
+.poster-main-title {
+  font-family: var(--font-round);
+  font-size: clamp(2.4rem, 6.5vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+  line-height: 1;
+  margin-top: 6px;
+}
+
+.poster-name {
+  font-family: var(--font-hand);
+  font-size: 2.5rem;
+  color: var(--arg-blue);
+}
+
+.flying-annotations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-width: 480px;
+  margin: 18px auto 0;
+}
+
+.flying-tag {
+  background: var(--bg-cream);
+  border: 1px solid rgba(23, 43, 77, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.messi-reaction-speech {
+  font-family: var(--font-hand);
+  font-size: 1.7rem;
+  color: var(--navy);
+  margin-top: 14px;
+}
+
+/* ================= SCENE 4: THE TROPHY PARTY ================= */
+.scene-party {
+  background: radial-gradient(circle at center, #FFFDF9 0%, #FFF5E6 100%);
+}
+
+.party-streamers-art {
+  font-size: 2rem;
+  letter-spacing: 12px;
+  margin-bottom: 12px;
+}
+
+.party-trophy-bounce {
+  font-size: 5rem;
+  animation: partyBounce 1s infinite alternate var(--ease-elastic);
+}
+@keyframes partyBounce {
+  0% { transform: scale(1) rotate(-4deg); }
+  100% { transform: scale(1.18) rotate(4deg); }
+}
+
+.party-shout {
+  font-family: var(--font-round);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.15;
+}
+
+.party-sub-lead {
+  font-family: var(--font-hand);
+  font-size: 1.8rem;
+  color: var(--navy-muted);
+}
+
+.party-actually {
+  font-family: var(--font-hand);
+  font-size: 1.7rem;
+  color: var(--gold);
+}
+
+.party-huge-deal {
+  font-family: var(--font-round);
+  font-size: clamp(2.2rem, 5.8vw, 3.2rem);
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.party-proud-note {
+  font-family: var(--font-hand);
+  font-size: 2rem;
+  color: var(--arg-blue);
+  margin-top: 4px;
+}
+
+/* ================= SCENE 5: THE PHOTO WALL ================= */
+.scene-photowall {
+  background: var(--bg-cream);
+  min-height: 100vh;
+  padding: 40px 16px;
+}
+
+.wall-question {
+  font-family: var(--font-hand);
+  font-size: 2rem;
+  color: var(--gold);
+}
+
+.wall-heading {
+  font-family: var(--font-round);
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.wall-sub {
+  font-size: 0.95rem;
+  color: var(--navy-muted);
+  font-style: italic;
+}
+
+.polaroids-pinboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 860px;
+  margin: 32px auto 0;
+}
+
+.polaroid-pin-card {
+  background: var(--white);
+  padding: 12px 12px 18px;
+  border-radius: 4px;
+  box-shadow: 0 14px 28px rgba(23, 43, 77, 0.08);
+  position: relative;
+  width: 170px;
+  cursor: default;
+  transition: transform 0.3s var(--ease-elastic), box-shadow 0.3s ease;
+  user-select: none;
+}
+.polaroid-pin-card:hover {
+  transform: scale(1.08) rotate(0deg) !important;
+  box-shadow: 0 20px 40px rgba(23, 43, 77, 0.16);
+  z-index: 20;
+}
+
+.pin-washi-tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46px;
+  height: 15px;
+  background: var(--tape-color);
+  border-radius: 2px;
+}
+
+.pin-photo-frame {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #EFF3F8;
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pin-photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pin-placeholder {
+  font-size: 2.2rem;
+  color: var(--navy-muted);
+}
+
+.pin-friend-name {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 8px;
+  text-align: center;
+}
+
+.pin-caption {
+  font-family: var(--font-hand);
+  font-size: 1.25rem;
+  color: var(--arg-blue);
+  text-align: center;
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+.messi-taper-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 860px;
+  margin: 32px auto 0;
+  padding: 12px 20px;
+  background: var(--white);
+  border: 1.5px solid rgba(23, 43, 77, 0.1);
+  border-radius: 20px;
+}
+
+.messi-taper-doodle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.messi-taper-icon {
+  font-size: 1.5rem;
+}
+
+.messi-tape-speech {
+  font-family: var(--font-hand);
+  font-size: 1.45rem;
+  color: var(--navy);
+}
+
+/* ================= SCENE 6: THE CROWD ================= */
+
+/* ================= SCENE 6: THE CROWD ================= */
+.scene-crowd {
+  background: linear-gradient(180deg, #F3F8FD 0%, var(--bg-cream) 100%);
+}
+
+.crowd-photo-strip {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.crowd-thumb-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.08);
+  background-size: cover;
+  background-position: center;
+  background-color: var(--arg-blue-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.crowd-poetic-lines p {
+  font-size: 1.25rem;
+  color: var(--navy-muted);
+}
+.funny-tint {
+  font-family: var(--font-hand);
+  font-size: 1.7rem !important;
+  color: var(--navy) !important;
+}
+
+.crowd-common-note {
+  font-size: 1.15rem;
+  color: var(--navy-muted);
+}
+
+.crowd-proud-proclamation {
+  font-family: var(--font-round);
+  font-size: clamp(2.4rem, 6.5vw, 3.8rem);
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.crowd-always-tag {
+  font-family: var(--font-hand);
+  font-size: 2.3rem;
+  color: var(--arg-blue);
+}
+
+.corner-promise-card {
+  font-size: 1.2rem;
+  color: var(--navy);
+}
+
+.heart-winner-box {
+  margin-top: 16px;
+}
+.heart-intro {
+  font-family: var(--font-hand);
+  font-size: 1.8rem;
+  color: var(--gold);
+}
+.heart-winner-title {
+  font-family: var(--font-round);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 900;
+  color: var(--navy);
+}
+
+/* ================= SCENE 7: MESSI RUINS THE EMOTION ================= */
+.scene-messi-ruins {
+  background: var(--bg-cream);
+}
+
+.messi-deadpan-actor {
+  width: 140px;
+  height: 180px;
+  margin: 0 auto;
+}
+.messi-svg-large {
+  width: 100%;
+  height: 100%;
+}
+
+.deadpan-short {
+  font-size: 1.3rem;
+  color: var(--navy-muted);
+}
+
+.deadpan-punchline {
+  font-family: var(--font-round);
+  font-size: clamp(2rem, 5.5vw, 3rem);
+  font-weight: 900;
+  color: var(--navy);
+}
+
+/* ================= SCENE 8: INTERACTIVE FOOTBALL GAME ================= */
+.scene-football-game {
+  background: linear-gradient(180deg, #F0F6FD 0%, #E8F5E9 65%, #C8E6C9 100%);
+  padding: 20px 14px 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-scene-wrapper {
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+  z-index: 10;
+}
+
+.game-badge-round {
+  display: inline-block;
+  font-family: var(--font-round);
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  background: var(--navy);
+  padding: 6px 18px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.15);
+}
+
+.game-title {
+  font-family: var(--font-round);
+  font-size: clamp(2rem, 5.5vw, 2.9rem);
+  font-weight: 900;
+  color: var(--navy);
+  margin-top: 4px;
+}
+
+.game-subtitle {
+  font-size: 1.05rem;
+  color: var(--navy-muted);
+}
+
+.game-whisper {
+  font-family: var(--font-hand);
+  font-size: 1.55rem;
+  color: var(--gold);
+}
+
+/* Pitch Arena */
+.game-pitch-arena {
+  background: #A9D18E;
+  border: 3px solid #86B86B;
+  border-radius: 24px;
+  position: relative;
+  min-height: 440px;
+  margin-top: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(23, 43, 77, 0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: crosshair;
+}
+
+.game-pitch-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(180deg, rgba(23, 43, 77, 0.25) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* The Goal Post */
+.game-goal-frame {
+  position: relative;
+  width: 90%;
+  max-width: 440px;
+  height: 130px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 4px solid var(--white);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.goal-net-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(45deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none;
+}
+
+/* 3 Interactive Targets */
+.goal-targets-container {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 16px;
+  z-index: 5;
+}
+
+.goal-target {
+  background: var(--white);
+  border: 2px solid var(--navy);
+  border-radius: 14px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-elastic);
+}
+.goal-target:hover {
+  transform: scale(1.1);
+}
+.target-icon { font-size: 1.2rem; }
+.target-name {
+  font-family: var(--font-round);
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.target-proud { border-color: #27AE60; }
+.target-happy { border-color: #F5B041; }
+.target-vamos { border-color: var(--arg-blue); }
+
+/* Overthinking Goalkeeper for Round 3 */
+.goalkeeper-actor {
+  position: absolute;
+  top: 25px;
+  left: 45%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 6;
+  animation: keeperPatrol 2.5s infinite ease-in-out alternate;
+}
+@keyframes keeperPatrol {
+  0% { left: 20%; transform: translateX(0); }
+  100% { left: 75%; transform: translateX(0); }
+}
+.keeper-emoji { font-size: 2.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
+.keeper-jersey {
+  font-family: var(--font-round);
+  font-size: 0.65rem;
+  font-weight: 900;
+  background: #E74C3C;
+  color: #FFFFFF;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Speech Bubble Above Messi in Game */
+.game-speech-bubble {
+  position: absolute;
+  bottom: 155px;
+  left: 30px;
+  background: var(--white);
+  border: 2px solid var(--navy);
+  border-radius: 14px;
+  padding: 8px 16px;
+  max-width: 250px;
+  box-shadow: 0 6px 18px rgba(23, 43, 77, 0.12);
+  z-index: 20;
+}
+.game-speech-bubble p {
+  font-family: var(--font-hand);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.25;
+}
+
+/* Messi Character Standing on Pitch */
+.game-messi-character {
+  position: absolute;
+  bottom: 25px;
+  left: 30px;
+  width: 85px;
+  height: 115px;
+  z-index: 15;
+  animation: messiIdleBreath 3s infinite ease-in-out alternate;
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+@keyframes messiIdleBreath {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-4px) scale(1.02); }
+}
+
+.game-messi-character.celebrating {
+  animation: messiJumpCelebration 0.45s infinite alternate var(--ease-elastic);
+}
+@keyframes messiJumpCelebration {
+  0% { transform: translateY(0) scale(1) rotate(-4deg); }
+  100% { transform: translateY(-24px) scale(1.15) rotate(4deg); }
+}
+
+.game-messi-character.dribbling {
+  animation: messiDribbleRun 0.5s infinite alternate ease-in-out;
+}
+@keyframes messiDribbleRun {
+  0% { transform: translateX(0) translateY(0) rotate(-2deg); }
+  100% { transform: translateX(45px) translateY(-8px) rotate(4deg); }
+}
+
+.game-messi-character.behind-player {
+  left: 50% !important;
+  bottom: 95px !important;
+  transform: translateX(-50%) scale(0.95);
+}
+
+.game-messi-svg { width: 100%; height: 100%; }
+
+/* Goalkeeper Dynamic Animations */
+.goalkeeper-actor.diving-left {
+  animation: none !important;
+  left: 25% !important;
+  transform: translateX(-50%) rotate(-35deg) scale(1.15) !important;
+  transition: all 0.22s ease-out;
+}
+.goalkeeper-actor.diving-right {
+  animation: none !important;
+  left: 75% !important;
+  transform: translateX(-50%) rotate(35deg) scale(1.15) !important;
+  transition: all 0.22s ease-out;
+}
+.goalkeeper-actor.celebrating {
+  animation: keeperHappyDance 0.35s infinite alternate ease-in-out !important;
+}
+@keyframes keeperHappyDance {
+  0% { transform: translateX(-50%) translateY(0) scale(1); }
+  100% { transform: translateX(-50%) translateY(-18px) scale(1.25) rotate(10deg); }
+}
+
+/* Stadium Lights Brightening for Round 3 */
+.game-pitch-arena.stadium-bright {
+  box-shadow: 0 0 50px rgba(255, 255, 200, 0.45), 0 16px 40px rgba(23, 43, 77, 0.2) !important;
+  border-color: #A3E4D7 !important;
+}
+.game-pitch-arena.stadium-bright .game-floodlights-glow {
+  opacity: 1 !important;
+  filter: brightness(1.6);
+}
+
+/* The Football */
+.game-pitch-ball {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  z-index: 20;
+  cursor: grab;
+  transition: transform 0.05s linear;
+}
+.game-pitch-ball:active { cursor: grabbing; }
+.svg-game-ball { width: 100%; height: 100%; filter: drop-shadow(0 6px 8px rgba(23, 43, 77, 0.2)); }
+
+/* Aim Trajectory line */
+.aim-trajectory {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  height: 120px;
+  width: 2px;
+  border-left: 2.5px dashed var(--white);
+  transform-origin: bottom center;
+  z-index: 10;
+  pointer-events: none;
+}
+.aim-arrow {
+  position: absolute;
+  top: -16px;
+  left: -8px;
+  color: var(--white);
+  font-size: 1.2rem;
+  transform: rotate(-90deg);
+}
+
+/* Power Meter */
+.power-meter-container {
+  position: absolute;
+  bottom: 12px;
+  right: 18px;
+  width: 140px;
+  z-index: 25;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(23, 43, 77, 0.15);
+}
+.power-meter-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--navy);
+  display: flex;
+  justify-content: space-between;
+}
+.power-meter-track {
+  width: 100%;
+  height: 8px;
+  background: #CBD6E2;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.power-meter-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #2ECC71, #F39C12, #E74C3C);
+  transition: width 0.05s linear;
+}
+
+/* Control Tips */
+.game-control-tips {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-size: 0.78rem;
+  color: var(--navy);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 10px;
+  border-radius: 10px;
+  z-index: 10;
+}
+.desktop-tip { display: block; }
+.mobile-tip { display: none; }
+@media (max-width: 680px) {
+  .desktop-tip { display: none; }
+  .mobile-tip { display: block; }
+}
+
+/* Round 2 Assist Timing Indicator */
+.timing-assist-box {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 30;
+}
+.assist-timing-ring {
+  width: 70px;
+  height: 70px;
+  border: 3px solid #2ECC71;
+  border-radius: 50%;
+  animation: timingPulse 1.2s infinite ease-out;
+}
+@keyframes timingPulse {
+  0% { transform: scale(1.6); opacity: 0.2; }
+  50% { transform: scale(1); opacity: 1; border-color: var(--gold); }
+  100% { transform: scale(1.6); opacity: 0.2; }
+}
+.assist-timing-text {
+  font-family: var(--font-round);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--white);
+  background: var(--navy);
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+/* Retry Area */
+.retry-action-area {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  animation: bubblePop 0.3s var(--ease-elastic);
+}
+
+/* ================= HAT-TRICK CELEBRATION MODAL ================= */
+.hat-trick-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(23, 43, 77, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.hat-trick-card {
+  background: var(--white);
+  border: 3px solid var(--navy);
+  border-radius: 24px;
+  padding: 28px 24px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  animation: bubblePop 0.4s var(--ease-elastic);
+}
+
+.hat-trick-badge {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #27AE60;
+  background: #E8F8F0;
+  padding: 4px 14px;
+  border-radius: 12px;
+}
+
+.hat-trick-title {
+  font-family: var(--font-round);
+  font-size: clamp(2rem, 5.5vw, 3rem);
+  font-weight: 900;
+  color: var(--navy);
+  margin-top: 4px;
+}
+
+.hat-trick-subtitle {
+  font-family: var(--font-round);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.funny-score-card {
+  background: var(--bg-cream);
+  border: 1px dashed var(--navy);
+  border-radius: 14px;
+  padding: 14px 18px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+.score-line span { color: var(--navy-muted); font-weight: 600; }
+.score-line strong { color: var(--navy); font-weight: 800; }
+.highlight-gold strong { color: #B9770E; }
+
+.messi-hat-trick-note p {
+  font-family: var(--font-hand);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.status-stamp {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--arg-blue);
+  background: var(--arg-blue-light);
+  padding: 4px 12px;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+/* Scene 9: Surrounding Crowd Photos Circle */
+.final-crowd-circle {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.final-crowd-circle .pin-photo-frame {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2.5px solid var(--white);
+  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.12);
+  background-color: var(--arg-blue-light);
+  overflow: hidden;
+}
+.final-crowd-circle .pin-photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.closing-smile-card {
+  background: #FFF5F5;
+  border: 1.5px solid #FFDCDC;
+  border-radius: 20px;
+  padding: 12px 24px;
+  display: inline-block;
+}
+.closing-smile-card p {
+  font-family: var(--font-hand);
+  font-size: 1.6rem;
+  color: #C0392B;
+}
+
+.final-team-note {
+  font-family: var(--font-hand);
+  font-size: 1.8rem;
+  color: var(--arg-blue);
+  margin-top: 4px;
+}
+
+.final-messi-trophy-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 16px auto;
+}
+.final-trophy-bounce {
+  font-size: 3.6rem;
+  animation: partyBounce 1.2s infinite alternate var(--ease-elastic);
+}
+.final-messi-figure {
+  width: 90px;
+  height: 120px;
+}
+
+.final-quote-head {
+  font-family: var(--font-hand);
+  font-size: 2rem;
+  color: var(--gold);
+}
+
+.final-quote-body {
+  font-family: var(--font-round);
+  font-size: clamp(2.4rem, 6.5vw, 3.8rem);
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.final-quote-always {
+  font-family: var(--font-hand);
+  font-size: 2.5rem;
+  color: var(--arg-blue);
+}
+
+.celebration-screen {
+  animation: bubblePop 0.5s var(--ease-elastic);
+}
+
+.celebration-badge {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #27AE60;
+}
+
+.celebration-main-title {
+  font-family: var(--font-round);
+  font-size: clamp(2.4rem, 6.5vw, 4rem);
+  font-weight: 900;
+  color: var(--navy);
+  margin-top: 6px;
+}
+
+.celebration-sub {
+  font-family: var(--font-hand);
+  font-size: 2rem;
+  color: var(--navy-muted);
+}
+
+.celebration-shout {
+  font-family: var(--font-round);
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-weight: 900;
+  color: var(--arg-blue);
+  letter-spacing: 1px;
+}
+
+/* Easter Egg Toast Alert */
+.scene-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy);
+  color: var(--white);
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-family: var(--font-round);
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: bubblePop 0.3s var(--ease-elastic);
+}
+
+/* Utilities */
+.hidden { display: none !important; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
+.text-center { text-align: center; }
+.mt-2 { margin-top: 10px; }
+.mt-3 { margin-top: 18px; }
+.mt-4 { margin-top: 28px; }
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  .full-scene { padding: 30px 16px; }
+  .flying-annotations-grid { grid-template-columns: 1fr; }
+  .polaroid-pin-card { width: 140px; padding: 10px 10px 14px; }
+  .pin-caption { font-size: 1.1rem; }
+  .interactive-sandbox { gap: 12px; }
+  .sandbox-item { padding: 14px 16px; }
+  .huge-vamos-sticker { padding: 16px 36px; font-size: 1.7rem; }
+}

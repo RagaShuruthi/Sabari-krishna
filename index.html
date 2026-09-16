@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>For Sabari ⚽</title>
+  <meta name="description" content="An animated story gift for Sabari Krishna.">
+
+  <!-- Warm rounded modern font + expressive handwriting -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="animated-story-world">
+
+  <!-- Top Tiny Sound & Progress Indicator (No standard navbar) -->
+  <div class="story-hud">
+    <button id="soundToggleBtn" class="sound-sticker" title="Toggle sound" aria-label="Toggle Sound">
+      <span id="soundIcon">🔊</span>
+    </button>
+    <div class="scene-progress" id="sceneProgressDot">Scene 1 / 9</div>
+  </div>
+
+  <!-- Fullscreen Particle & Kicked Football Canvas -->
+  <canvas id="cinemaCanvas"></canvas>
+
+  <!-- Interactive Speech Bubble (Universal Actor Bubble) -->
+  <div id="actorSpeechBubble" class="speech-bubble hidden">
+    <div class="bubble-tail"></div>
+    <p id="actorSpeechText" class="bubble-text"></p>
+  </div>
+
+  <!-- Interactive Toast / Mini Reaction -->
+  <div id="sceneReactionToast" class="scene-toast hidden">
+    <span id="sceneToastText"></span>
+  </div>
+
+  <!-- Fullscreen Scene Stage Container -->
+  <main id="sceneViewport" class="scene-viewport">
+
+    <!-- ================= SCENE 1: THE EMPTY STADIUM ================= -->
+    <section id="scene1" class="full-scene active scene-stadium">
+      <div class="stadium-sky">
+        <div class="stadium-lights-glow"></div>
+        <div class="stadium-stand-silhouette"></div>
+      </div>
+      <div class="grass-field">
+        <div class="pitch-marking-circle"></div>
+        <div class="pitch-chalk-line"></div>
+      </div>
+
+      <!-- Single Rolling Football -->
+      <div id="s1Ball" class="animated-ball ball-idle">
+        <svg viewBox="0 0 100 100" class="svg-ball" aria-label="Football">
+          <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#172B4D" stroke-width="4.5" />
+          <polygon points="50,30 67,42 61,62 39,62 33,42" fill="#172B4D" />
+          <line x1="50" y1="30" x2="50" y2="8" stroke="#172B4D" stroke-width="4" />
+          <line x1="67" y1="42" x2="88" y2="34" stroke="#172B4D" stroke-width="4" />
+          <line x1="61" y1="62" x2="76" y2="80" stroke="#172B4D" stroke-width="4" />
+          <line x1="39" y1="62" x2="24" y2="80" stroke="#172B4D" stroke-width="4" />
+          <line x1="33" y1="42" x2="12" y2="34" stroke="#172B4D" stroke-width="4" />
+        </svg>
+      </div>
+
+      <!-- Cartoon Messi Character -->
+      <div id="s1Messi" class="cartoon-messi messi-waiting">
+        <!-- Reusable Animated SVG Cartoon Messi -->
+        <svg viewBox="0 0 120 160" class="messi-svg" id="messiSvg1">
+          <!-- Messi Hair (Brown messy crop) -->
+          <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z"
+            fill="#4A2E18" />
+          <!-- Head/Face -->
+          <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1" />
+          <!-- Beard / Stubble -->
+          <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6" />
+          <!-- Eyes & Eyebrows -->
+          <ellipse id="messiEyeL1" cx="53" cy="36" rx="2.5" ry="3" fill="#172B4D" />
+          <ellipse id="messiEyeR1" cx="67" cy="36" rx="2.5" ry="3" fill="#172B4D" />
+          <path d="M49,30 Q54,28 58,31" stroke="#4A2E18" stroke-width="2.5" fill="none" stroke-linecap="round" />
+          <path d="M62,31 Q66,28 71,30" stroke="#4A2E18" stroke-width="2.5" fill="none" stroke-linecap="round" />
+          <!-- Nose & Smile -->
+          <path d="M60,37 L58,41 L61,41" stroke="#DCA27A" stroke-width="2" fill="none" />
+          <path id="messiMouth1" d="M54,46 Q60,50 66,46" stroke="#172B4D" stroke-width="2.5" fill="none"
+            stroke-linecap="round" />
+          <!-- Ears -->
+          <ellipse cx="40" cy="38" rx="4" ry="6" fill="#FDD5B1" />
+          <ellipse cx="80" cy="38" rx="4" ry="6" fill="#FDD5B1" />
+          <!-- Argentina Jersey 10 -->
+          <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z"
+            fill="#74B9E6" />
+          <rect x="54" y="54" width="12" height="50" fill="#FFFFFF" />
+          <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D"
+            text-anchor="middle">10</text>
+          <!-- Left Arm / Right Arm -->
+          <g id="messiLeftArm1">
+            <path d="M38,62 Q26,74 24,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
+          </g>
+          <g id="messiRightArm1">
+            <path d="M82,62 Q94,74 96,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
+          </g>
+          <!-- Shorts (Black) -->
+          <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D" />
+          <!-- Legs (Kicking right leg) -->
+          <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
+          <line id="messiKickLeg1" x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9"
+            stroke-linecap="round" />
+          <!-- Football Boots (Gold/White) -->
+          <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041" />
+          <ellipse id="messiBootR1" cx="73" cy="150" rx="9" ry="4" fill="#F5B041" />
+        </svg>
+      </div>
+
+      <!-- Narrative Text on Field (Where is he? -> I AM HERE!) -->
+      <div id="s1Narrative" class="scene-narrative-box hidden">
+        <p class="handwritten-annotation big-hand">Messi asks:</p>
+        <p class="scene-bold-text">“Where is he?”</p>
+        <button id="btnIAmHere" class="sticker-btn mt-3">
+          <span>I AM HERE! 🙋‍♂️</span>
+          <span class="sticker-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 2: MESSI ASKS & RUNAWAY NO BUTTON ================= -->
+    <section id="scene2" class="full-scene scene-room">
+      <div class="scene-inner-content text-center">
+        <!-- Cartoon Messi speaking directly to Sabari -->
+        <div class="messi-spotlight-actor">
+          <svg viewBox="0 0 120 160" class="messi-svg-scene2">
+            <!-- Messi Hair -->
+            <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z"
+              fill="#4A2E18" />
+            <!-- Head/Face -->
+            <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1" />
+            <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6" />
+            <!-- Big happy eyes & smiling mouth -->
+            <ellipse cx="53" cy="36" rx="3" ry="3.5" fill="#172B4D" />
+            <ellipse cx="67" cy="36" rx="3" ry="3.5" fill="#172B4D" />
+            <path d="M52,45 Q60,53 68,45" stroke="#172B4D" stroke-width="3" fill="none" stroke-linecap="round" />
+            <!-- Jersey 10 -->
+            <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z"
+              fill="#74B9E6" />
+            <rect x="54" y="54" width="12" height="50" fill="#FFFFFF" />
+            <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D"
+              text-anchor="middle">10</text>
+            <!-- Thumbs up gesture -->
+            <path d="M82,62 Q96,48 94,36" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
+            <text x="94" y="34" font-size="18">👍</text>
+            <path d="M38,62 Q24,68 22,80" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
+            <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D" />
+            <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
+            <line x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
+            <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041" />
+            <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041" />
+          </svg>
+        </div>
+
+        <div class="messi-dialogue-block mt-3">
+          <p class="scene2-preface">Messi smiles and says:</p>
+          <h1 class="scene2-headline">“I hear you are a NATIONAL WINNER! 🏆”</h1>
+          <p class="scene2-proud-shout">“Be proud, bro!”</p>
+
+          <h2 class="scene2-question mt-3">“Can we play a game? ⚽”</h2>
+
+          <!-- Two Choices: YES and RUNAWAY NO -->
+          <div class="choice-container-arena mt-4" id="choiceArena">
+            <button id="btnChoiceYes" class="choice-yes-btn">
+              <span>YES ✅</span>
+            </button>
+            <button id="btnChoiceNo" class="choice-no-btn">
+              <span>NO ❌</span>
+            </button>
+          </div>
+
+          <p id="noDodgeHint" class="dodge-funny-hint hidden">Nice try! You literally cannot say no. 😂</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 3: NATIONAL WINNER REVEAL ================= -->
+    <section id="scene3" class="full-scene scene-winner-reveal">
+      <div class="scene-inner-content text-center">
+
+        <!-- Stage 3a: Tiny Trophy Waiting -->
+        <div id="s3TinyStage" class="tiny-trophy-stage">
+          <div id="s3TinyTrophy" class="tiny-trophy-icon">🏆</div>
+          <p id="s3TinkSound" class="tink-text hidden">TINK!</p>
+        </div>
+
+        <!-- Stage 3b: Big Celebratory Poster (Hidden until hit) -->
+        <div id="s3CelebratoryPoster" class="celebratory-poster hidden">
+          <div class="poster-trophy-huge" id="s3BigTrophy">
+            <svg viewBox="0 0 100 100" class="svg-trophy-poster" aria-label="National Trophy">
+              <path d="M26 18 H74 V48 C74 64 63 74 50 74 C37 74 26 64 26 48 Z" fill="#F5B041" stroke="#172B4D"
+                stroke-width="4" />
+              <path d="M26 26 C12 26 12 48 26 48" fill="none" stroke="#172B4D" stroke-width="4" />
+              <path d="M74 26 C88 26 88 48 74 48" fill="none" stroke="#172B4D" stroke-width="4" />
+              <rect x="46" y="74" width="8" height="12" fill="#D68910" stroke="#172B4D" stroke-width="3" />
+              <rect x="30" y="86" width="40" height="10" rx="3" fill="#74B9E6" stroke="#172B4D" stroke-width="3" />
+              <polygon points="50,34 53,41 60,41 55,46 57,53 50,49 43,53 45,46 40,41 47,41" fill="#FFFFFF" />
+            </svg>
+          </div>
+
+          <div class="poster-stamp">MESSI APPROVED ✓</div>
+          <h1 class="poster-main-title">NATIONAL WINNER</h1>
+          <h2 class="poster-name">SABARI KRISHNA</h2>
+
+          <!-- Flying Annotations -->
+          <div class="flying-annotations-grid">
+            <div class="flying-tag tag-1">HARD WORK: DETECTED</div>
+            <div class="flying-tag tag-2">TALENT: SUSPICIOUS</div>
+            <div class="flying-tag tag-3">GOAT ENERGY: UNMEASURABLE</div>
+            <div class="flying-tag tag-4">PROUD PEOPLE: TOO MANY</div>
+          </div>
+
+          <!-- Messi Thumbs Up & Confusion -->
+          <div class="messi-in-poster">
+            <div class="messi-reaction-speech">
+              <p id="s3MessiQuote">“So… where's the celebration?” 😂</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <button id="btnScene3Celebrate" class="sticker-btn gold-sticker">
+              <span>CELEBRATE 🏆</span>
+              <span class="sticker-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 4: THE TROPHY PARTY ================= -->
+    <section id="scene4" class="full-scene scene-party">
+      <div class="scene-inner-content text-center">
+        <div class="party-streamers-art">🎉 ⚽ 🎊 🏆 🎈</div>
+
+        <div class="trophy-centerpiece">
+          <div class="party-trophy-bounce">🏆</div>
+        </div>
+
+        <div class="party-dialog-flow">
+          <h1 class="party-shout">JUST CASUALLY BECAME A NATIONAL WINNER.</h1>
+          <p class="party-sub-lead">NO BIG DEAL.</p>
+          <div class="pause-reveal mt-2">
+            <p class="party-actually">Actually…</p>
+            <h2 class="party-huge-deal">VERY BIG DEAL. 😂</h2>
+            <p class="party-proud-note">YOU SHOULD BE PROUD.</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button id="btnScene4" class="sticker-btn">
+            <span>but wait… who's cheering?</span>
+            <span class="sticker-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 5: THE PHOTO WALL (CENTERPIECE) ================= -->
+    <section id="scene5" class="full-scene scene-photowall">
+      <div class="wall-header text-center">
+        <p class="wall-question">BUT WAIT…</p>
+        <h1 class="wall-heading">WHO'S CHEERING?</h1>
+        <p class="wall-sub">(Messi is pinning them onto the wall one by one)</p>
+      </div>
+
+      <!-- Pinned Physical Polaroids Area -->
+      <div id="polaroidsPinboard" class="polaroids-pinboard">
+        <!-- Filled sequentially by app.js when Messi kicks the ball -->
+      </div>
+
+      <!-- Messi with Tape interacting with the wall -->
+      <div class="messi-taper-bar">
+        <div class="messi-taper-doodle">
+          <span class="messi-taper-icon">🐐</span>
+          <span id="messiWallStatus" class="messi-tape-speech">“Hold on, pinning the squad…”</span>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button id="btnScene5Next" class="sticker-btn">
+          <span>look at this crowd</span>
+          <span class="sticker-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 6: THE CROWD ================= -->
+    <section id="scene6" class="full-scene scene-crowd">
+      <div class="scene-inner-content text-center">
+        <!-- Floating Photo Collage Stadium Background -->
+        <div id="crowdPhotoStrip" class="crowd-photo-strip"></div>
+
+        <div class="crowd-poetic-lines">
+          <p class="crowd-strobe">Different people.</p>
+          <p class="crowd-strobe">Different places.</p>
+          <p class="crowd-strobe funny-tint">Different levels of nonsense. 😂</p>
+        </div>
+
+        <div class="crowd-unison mt-3">
+          <p class="crowd-common-note">One thing in common.</p>
+          <h1 class="crowd-proud-proclamation">WE'RE PROUD OF YOU.</h1>
+          <p class="crowd-always-tag">Always.</p>
+        </div>
+
+        <div class="corner-promise-card mt-3">
+          <p class="promise-p1">Whatever happens,</p>
+          <p class="promise-p2">you've got people in your corner.</p>
+        </div>
+
+        <div class="heart-winner-box mt-3">
+          <p class="heart-intro">AND IN OUR HEARTS…</p>
+          <h2 class="heart-winner-title">YOU'RE ALWAYS A WINNER. 🏆</h2>
+        </div>
+
+        <div class="mt-4">
+          <button id="btnScene6Next" class="sticker-btn">
+            <span>continue</span>
+            <span class="sticker-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 7: MESSI RUINS THE EMOTIONAL MOMENT ================= -->
+    <section id="scene7" class="full-scene scene-messi-ruins">
+      <div class="scene-inner-content text-center">
+        <!-- Messi walking right up to camera -->
+        <div class="messi-deadpan-actor">
+          <svg viewBox="0 0 120 160" class="messi-svg-large">
+            <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z"
+              fill="#4A2E18" />
+            <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1" />
+            <!-- Straight deadpan eyes -->
+            <line x1="50" y1="36" x2="56" y2="36" stroke="#172B4D" stroke-width="3" stroke-linecap="round" />
+            <line x1="64" y1="36" x2="70" y2="36" stroke="#172B4D" stroke-width="3" stroke-linecap="round" />
+            <!-- Flat mouth -->
+            <line x1="54" y1="46" x2="66" y2="46" stroke="#172B4D" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z"
+              fill="#74B9E6" />
+            <rect x="54" y="54" width="12" height="50" fill="#FFFFFF" />
+            <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D"
+              text-anchor="middle">10</text>
+            <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D" />
+            <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
+            <line x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
+            <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041" />
+            <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041" />
+          </svg>
+        </div>
+
+        <div class="deadpan-dialog mt-3">
+          <p class="deadpan-short">“Okay.”</p>
+          <h1 class="deadpan-punchline mt-2">“That's enough feelings.” 😂</h1>
+        </div>
+
+        <div class="mt-4">
+          <button id="btnScene7Next" class="sticker-btn gold-sticker">
+            <span>kick ball to continue ⚽</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 8: INTERACTIVE FOOTBALL GAME ================= -->
+    <section id="scene8" class="full-scene scene-football-game">
+      <div class="game-scene-wrapper">
+        <!-- Game Header -->
+        <div class="game-header text-center">
+          <div class="game-badge-round" id="gameRoundBadge">ROUND 1: WARM-UP ⚽</div>
+          <h1 class="game-title">OKAY NO.10… YOUR TURN. ⚽</h1>
+          <p class="game-subtitle">Messi has prepared a tiny challenge for you.</p>
+          <p class="game-whisper">“Don't overthink it. Seriously. 😂”</p>
+        </div>
+
+        <!-- The Interactive Pitch Arena -->
+        <div class="game-pitch-arena" id="gamePitch">
+          <!-- Stadium Floodlights & Crowd Background -->
+          <div class="game-pitch-sky">
+            <div class="game-crowd-silhouette"></div>
+            <div class="game-floodlights-glow"></div>
+          </div>
+
+          <!-- Goal Post at the Top -->
+          <div class="game-goal-frame" id="goalFrame">
+            <div class="goal-net-pattern"></div>
+            <div class="goal-crossbar"></div>
+            <div class="goal-post-left"></div>
+            <div class="goal-post-right"></div>
+
+            <!-- Funny Goalkeeper (Round 3: Overthinking FC) -->
+            <div id="overthinkingKeeper" class="goalkeeper-actor hidden">
+              <span class="keeper-emoji">🧠</span>
+              <span class="keeper-jersey">OVERTHINKING FC</span>
+            </div>
+
+            <!-- 3 Interactive Target Zones inside goal -->
+            <div class="goal-targets-container">
+              <div class="goal-target target-proud" id="targetProud" data-target="proud">
+                <span class="target-icon">🎯</span>
+                <span class="target-name">PROUD</span>
+              </div>
+              <div class="goal-target target-happy" id="targetHappy" data-target="happy">
+                <span class="target-icon">🎯</span>
+                <span class="target-name">HAPPY</span>
+              </div>
+              <div class="goal-target target-vamos" id="targetVamos" data-target="vamos">
+                <span class="target-icon">🎯</span>
+                <span class="target-name">VAMOS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Game Speech Bubble above Messi -->
+          <div id="gameMessiBubble" class="game-speech-bubble">
+            <p id="gameMessiText">“Okay No.10… Your turn. Kick the ball. Please don't overthink the angle. 😂”</p>
+          </div>
+
+          <!-- Cartoon Messi (Standing beside ball / Dribbling / Passing) -->
+          <div id="gameMessiActor" class="game-messi-character">
+            <svg viewBox="0 0 120 160" class="game-messi-svg" id="gameMessiSvg">
+              <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z" fill="#4A2E18"/>
+              <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1"/>
+              <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6"/>
+              <ellipse cx="53" cy="36" rx="2.8" ry="3.2" fill="#172B4D"/>
+              <ellipse cx="67" cy="36" rx="2.8" ry="3.2" fill="#172B4D"/>
+              <path id="gameMessiMouth" d="M54,46 Q60,51 66,46" stroke="#172B4D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z" fill="#74B9E6"/>
+              <rect x="54" y="54" width="12" height="50" fill="#FFFFFF"/>
+              <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D" text-anchor="middle">10</text>
+              <g id="gameMessiArmL"><path d="M38,62 Q26,74 24,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/></g>
+              <g id="gameMessiArmR"><path d="M82,62 Q94,74 96,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/></g>
+              <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D"/>
+              <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
+              <line id="gameMessiLegR" x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
+              <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041"/>
+              <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041"/>
+            </svg>
+          </div>
+
+          <!-- The Interactive Football on Pitch -->
+          <div id="gamePitchBall" class="game-pitch-ball">
+            <svg viewBox="0 0 100 100" class="svg-game-ball" aria-label="Kickable Football">
+              <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#172B4D" stroke-width="4.5"/>
+              <polygon points="50,30 67,42 61,62 39,62 33,42" fill="#172B4D"/>
+              <line x1="50" y1="30" x2="50" y2="8" stroke="#172B4D" stroke-width="4"/>
+              <line x1="67" y1="42" x2="88" y2="34" stroke="#172B4D" stroke-width="4"/>
+              <line x1="61" y1="62" x2="76" y2="80" stroke="#172B4D" stroke-width="4"/>
+              <line x1="39" y1="62" x2="24" y2="80" stroke="#172B4D" stroke-width="4"/>
+              <line x1="33" y1="42" x2="12" y2="34" stroke="#172B4D" stroke-width="4"/>
+            </svg>
+          </div>
+
+          <!-- Aim Indicator Line (Points from ball toward mouse / touch) -->
+          <div id="aimTrajectory" class="aim-trajectory hidden">
+            <div class="aim-line"></div>
+            <div class="aim-arrow">➤</div>
+          </div>
+
+          <!-- Power Charge Meter -->
+          <div class="power-meter-container" id="powerMeterBox">
+            <div class="power-meter-label">KICK POWER: <span id="powerText">0%</span></div>
+            <div class="power-meter-track">
+              <div id="powerMeterFill" class="power-meter-fill"></div>
+            </div>
+          </div>
+
+          <!-- Timing Indicator for Round 2 (Messi Assist) -->
+          <div id="timingAssistBox" class="timing-assist-box hidden">
+            <div class="assist-timing-ring" id="assistTimingRing"></div>
+            <p class="assist-timing-text">CLICK WHEN RINGS MATCH! ⚡</p>
+          </div>
+
+          <!-- Game Floating Instructions -->
+          <div class="game-control-tips">
+            <span class="desktop-tip">🖱️ <strong>MOUSE CONTROL:</strong> Move to aim • Hold to charge • Release to kick!</span>
+            <span class="mobile-tip">📱 <strong>Drag to aim + release to kick.</strong></span>
+          </div>
+
+          <!-- Try Again Button (shown after a funny miss) -->
+          <div id="gameRetryArea" class="retry-action-area hidden">
+            <button id="btnRetryKick" class="sticker-btn gold-sticker">
+              <span>TRY AGAIN ⚽</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= HAT-TRICK CELEBRATION MODAL ================= -->
+        <div id="hatTrickModal" class="hat-trick-modal hidden">
+          <div class="hat-trick-card">
+            <div class="hat-trick-badge">🏆 MESSI APPROVED ✅</div>
+            <h1 class="hat-trick-title">HAT-TRICK! ⚽⚽⚽</h1>
+            <p class="hat-trick-subtitle">NO.10 HAS DONE IT.</p>
+
+            <!-- Special Funny Score -->
+            <div class="funny-score-card mt-3">
+              <div class="score-line"><span>GOALS:</span> <strong>3 / 3</strong></div>
+              <div class="score-line"><span>STYLE:</span> <strong>QUESTIONABLE</strong></div>
+              <div class="score-line"><span>EFFORT:</span> <strong>10 / 10</strong></div>
+              <div class="score-line"><span>OVERTHINKING:</span> <strong>TEMPORARILY CONTROLLED</strong></div>
+              <div class="score-line highlight-gold"><span>GOAT ENERGY:</span> <strong>MAXIMUM 😂</strong></div>
+            </div>
+
+            <!-- Messi final game note -->
+            <div class="messi-hat-trick-note mt-3">
+              <p>“See? You had it in you. Now stop overthinking. 😂”</p>
+              <span class="status-stamp">GOAT STATUS: APPROVED 🐐</span>
+            </div>
+
+            <button id="btnToCrowdFinale" class="sticker-btn huge-vamos-sticker mt-4">
+              <span>SEE WHO'S CHEERING FOR YOU 📸 →</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCENE 9: FINAL CINEMATIC & CELEBRATION ================= -->
+    <section id="scene9" class="full-scene scene-final">
+      <div class="scene-inner-content text-center">
+        <!-- Floating Surrounding Photos of the Squad -->
+        <div id="finalCrowdCircle" class="final-crowd-circle">
+          <!-- Injected dynamically from supporters array -->
+        </div>
+
+        <div id="finalPreCelebration" class="final-gentle-flow">
+          <p class="final-quote-head">“Wait…”</p>
+          <h2 class="final-quote-sub">“LOOK AT YOUR CROWD.”</h2>
+          <p class="final-team-note">“That's your team. Keep going, No.10.”</p>
+
+          <!-- Messi + Trophy Display -->
+          <div class="final-messi-trophy-display mt-3">
+            <div class="final-trophy-bounce">🏆</div>
+            <div class="final-messi-figure">
+              <svg viewBox="0 0 120 160" class="messi-svg-scene2">
+                <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z" fill="#4A2E18"/>
+                <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1"/>
+                <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6"/>
+                <ellipse cx="53" cy="36" rx="3" ry="3.5" fill="#172B4D"/>
+                <ellipse cx="67" cy="36" rx="3" ry="3.5" fill="#172B4D"/>
+                <path d="M52,45 Q60,53 68,45" stroke="#172B4D" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z" fill="#74B9E6"/>
+                <rect x="54" y="54" width="12" height="50" fill="#FFFFFF"/>
+                <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D" text-anchor="middle">10</text>
+                <path d="M82,62 Q96,48 94,36" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <text x="94" y="34" font-size="18">👍</text>
+                <path d="M38,62 Q24,68 22,80" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D"/>
+                <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
+                <line x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
+                <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041"/>
+                <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041"/>
+              </svg>
+            </div>
+          </div>
+          
+          <h1 class="final-quote-body mt-3">YOU'VE GOT PEOPLE CHEERING FOR YOU.</h1>
+          <p class="final-quote-always">Always.</p>
+
+          <div class="closing-smile-card mt-3">
+            <p>Now go smile 😂<br><strong>AND PLEASE EAT SOMETHING.</strong></p>
+          </div>
+
+          <div class="mt-4">
+            <button id="btnFinalVamosKick" class="sticker-btn huge-vamos-sticker">
+              VAMOSSSSS ⚽🐐
+            </button>
+          </div>
+        </div>
+
+        <!-- Grand Celebration Overlay Revealed on Kick -->
+        <div id="finalCelebrationOverlay" class="celebration-screen hidden">
+          <div class="celebration-badge">MISSION ACCOMPLISHED 🏆</div>
+          <h1 class="celebration-main-title">MAKE SABARI SMILE: ✅</h1>
+          <p class="celebration-sub">Hopefully 😂</p>
+
+          <div class="celebration-shout mt-3">VAMOSSSSSSS ⚽🐐</div>
+
+          <div class="final-reset-bar mt-4">
+            <button id="btnRestartStory" class="sticker-btn restart-sticker">
+              ↺ watch again from the beginning
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
