@@ -748,11 +748,13 @@ function startScene5PhotoWall() {
       ? `<img src="${data.image}" alt="${data.name}">`
       : `<div class="pin-placeholder">${['🫂', '✨', '⚽', '💪', '🏆', '🔥'][i % 6]}</div>`;
 
+    const nameHtml = data.name ? `<div class="pin-friend-name">${data.name}</div>` : '';
+
     card.innerHTML = `
       <div class="pin-washi-tape"></div>
       <div class="pin-photo-frame">${imgContent}</div>
-      <div class="pin-friend-name">${data.name}</div>
-      <p class="pin-caption">“${data.message}”</p>
+      ${nameHtml}
+      <p class="pin-caption">“${data.message || ''}”</p>
     `;
 
     return card;
