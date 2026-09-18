@@ -1,86 +1,67 @@
-/**
- * FOR SABARI ⚽ — ANIMATED DIGITAL STORY
- * Messi Cartoon Character, Physics Football Engine, and 9 Cinematic Scenes
- */
 
-// ==========================================
-// ADD SABARI'S PEOPLE HERE
-// Easily add or edit friends and their messages below:
-// ==========================================
 const supporters = [
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.12 AM.jpeg", // Path to image (e.g., "photos/person1.jpg") or uploaded directly
-    name: "Friend 1",
+    image: "images/WhatsApp Image 2026-09-16 at 11.29.37 AM.jpeg", // Path to image (e.g., "photos/person1.jpg") or uploaded directly
     message: "Always cheering for you. No matter what."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.13 AM.jpeg",
-    name: "Friend 2",
+    image: "images/WhatsApp Image 2026-09-18 at 3.46.55 PM.jpeg",
+
     message: "National Winner! So proud of you."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.15 AM.jpeg",
-    name: "Friend 3",
+    image: "images/WhatsApp Image 2026-09-16 at 11.24.27 AM.jpeg",
     message: "Keep going, champion. You earned this."
   },
   {
     image: "images/WhatsApp Image 2026-09-16 at 11.24.27 AM (1).jpeg",
-    name: "Friend 4",
     message: "We've got you, bro. Always in your corner."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.24.27 AM (2).jpeg",
-    name: "Friend 5",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.15 AM.jpeg",
     message: "You made us so unbelievably proud."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.29.37 AM.jpeg",
-    name: "Friend 6",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.12 AM.jpeg",
     message: "Keep being you. The journey continues."
   },
   {
-    image: "images/WhatsApp Image 2026-07-17 at 9.34.23 AM.jpeg",
-    name: "Friend 7",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.12 AM (1).jpeg",
     message: "Your whole squad is right behind you."
   },
   {
-    image: "images/WhatsApp Image 2026-09-11 at 12.40.55 PM.jpeg",
-    name: "Friend 8",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.10 AM.jpeg",
     message: "Certified GOAT energy. Head high always!"
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.04 AM.jpeg",
-    name: "Friend 9",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.09 AM.jpeg",
     message: "National level talent, world class friend."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.06 AM.jpeg",
-    name: "Friend 10",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.08 AM.jpeg",
     message: "Celebrating you today and every single day."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.08 AM.jpeg",
-    name: "Friend 11",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.09 AM (1).jpeg",
     message: "Don't stop smiling, legend!"
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.09 AM (1).jpeg",
-    name: "Friend 12",
+    image: "images/WhatsApp Image 2026-07-17 at 9.34.23 AM.jpeg",
+
     message: "In your corner for every chapter."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.09 AM.jpeg",
-    name: "Friend 13",
+    image: "images/WhatsApp Image 2026-09-11 at 12.40.55 PM.jpeg",
+
     message: "True champion in all of our hearts."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.15 AM.jpeg",
-    name: "Friend 14",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.06 AM.jpeg",
+
     message: "More football, more joy, more VAMOS."
   },
   {
-    image: "images/WhatsApp Image 2026-09-16 at 11.23.12 AM (1).jpeg",
-    name: "Friend 15",
+    image: "images/WhatsApp Image 2026-09-16 at 11.23.04 AM.jpeg",
     message: "Proud to have you as our No.10!"
   }
 ];
@@ -748,13 +729,11 @@ function startScene5PhotoWall() {
       ? `<img src="${data.image}" alt="${data.name}">`
       : `<div class="pin-placeholder">${['🫂', '✨', '⚽', '💪', '🏆', '🔥'][i % 6]}</div>`;
 
-    const nameHtml = data.name ? `<div class="pin-friend-name">${data.name}</div>` : '';
-
     card.innerHTML = `
       <div class="pin-washi-tape"></div>
       <div class="pin-photo-frame">${imgContent}</div>
-      ${nameHtml}
-      <p class="pin-caption">“${data.message || ''}”</p>
+      <div class="pin-friend-name">${data.name}</div>
+      <p class="pin-caption">“${data.message}”</p>
     `;
 
     return card;
