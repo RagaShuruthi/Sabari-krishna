@@ -1,601 +1,2068 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>For Sabari ⚽</title>
-  <meta name="description" content="An animated story gift for Sabari Krishna.">
-
-  <!-- Warm rounded modern font + expressive handwriting -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
-    rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Sabari — The Champion's Journey ⚽ | Sabari & Messi vs Ronaldo</title>
+  <meta name="description" content="A cinematic, interactive 3D football adventure website dedicated to Sabari Krishna. Play alongside Lionel Messi against Cristiano Ronaldo, with an emotional personal promise ending!">
+  
+  <!-- CDNs: Three.js, GSAP, Confetti -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body class="animated-story-world">
+  <!-- Fullscreen WebGL Three.js Canvas for 3D Stadium & Atmospheric Pitch -->
+  <canvas id="webgl-canvas"></canvas>
 
-  <!-- Top Tiny Sound & Progress Indicator (No standard navbar) -->
-  <div class="story-hud">
-    <button id="soundToggleBtn" class="sound-sticker" title="Toggle sound" aria-label="Toggle Sound">
-      <span id="soundIcon">🔊</span>
+  <!-- Ambient Stadium Spotlight Beams -->
+  <div class="ambient-lights">
+    <div class="spotlight-beam left"></div>
+    <div class="spotlight-beam right"></div>
+  </div>
+
+  <!-- Loading Screen & User Interaction Trigger -->
+  <div id="loading-screen">
+    <div class="loader-ball-container">
+      <div class="loader-ball">⚽</div>
+      <div class="loader-shadow"></div>
+    </div>
+    <div class="loading-title">SABARI • THE CHAMPION'S JOURNEY</div>
+    <div class="loading-sub" id="loadingStatusText">Igniting Lusail Stadium Floodlights...</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <button type="button" class="start-btn" id="startExperienceBtn">
+      ENTER THE STADIUM ⚽
     </button>
-    <div class="scene-progress" id="sceneProgressDot">Scene 1 / 9</div>
   </div>
 
-  <!-- Fullscreen Particle & Kicked Football Canvas -->
-  <canvas id="cinemaCanvas"></canvas>
-
-  <!-- Interactive Speech Bubble (Universal Actor Bubble) -->
-  <div id="actorSpeechBubble" class="speech-bubble hidden">
-    <div class="bubble-tail"></div>
-    <p id="actorSpeechText" class="bubble-text"></p>
-  </div>
-
-  <!-- Interactive Toast / Mini Reaction -->
-  <div id="sceneReactionToast" class="scene-toast hidden">
-    <span id="sceneToastText"></span>
-  </div>
-
-  <!-- Fullscreen Scene Stage Container -->
-  <main id="sceneViewport" class="scene-viewport">
-
-    <!-- ================= SCENE 1: THE EMPTY STADIUM ================= -->
-    <section id="scene1" class="full-scene active scene-stadium">
-      <div class="stadium-sky">
-        <div class="stadium-lights-glow"></div>
-        <div class="stadium-stand-silhouette"></div>
+  <!-- Persistent Top HUD Navigation (Sequential Story Tracker) -->
+  <header class="top-hud" id="mainHud">
+    <div class="hud-logo">
+      <span class="ball-badge">⚽</span>
+      <div class="hud-title-group">
+        <h1>SABARI — THE CHAMPION'S JOURNEY</h1>
+        <span>Sabari &amp; Messi vs Ronaldo &bull; Interactive Football Movie</span>
       </div>
-      <div class="grass-field">
-        <div class="pitch-marking-circle"></div>
-        <div class="pitch-chalk-line"></div>
-      </div>
+    </div>
 
-      <!-- Single Rolling Football -->
-      <div id="s1Ball" class="animated-ball ball-idle">
-        <svg viewBox="0 0 100 100" class="svg-ball" aria-label="Football">
-          <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#172B4D" stroke-width="4.5" />
-          <polygon points="50,30 67,42 61,62 39,62 33,42" fill="#172B4D" />
-          <line x1="50" y1="30" x2="50" y2="8" stroke="#172B4D" stroke-width="4" />
-          <line x1="67" y1="42" x2="88" y2="34" stroke="#172B4D" stroke-width="4" />
-          <line x1="61" y1="62" x2="76" y2="80" stroke="#172B4D" stroke-width="4" />
-          <line x1="39" y1="62" x2="24" y2="80" stroke="#172B4D" stroke-width="4" />
-          <line x1="33" y1="42" x2="12" y2="34" stroke="#172B4D" stroke-width="4" />
-        </svg>
-      </div>
+    <!-- Non-clickable sequential story step tracker -->
+    <div class="hud-story-tracker">
+      <span class="hud-story-step" id="hudStoryStep">Scene 1 of 6 &bull; The Meeting</span>
+    </div>
 
-      <!-- Cartoon Messi Character -->
-      <div id="s1Messi" class="cartoon-messi messi-waiting">
-        <!-- Reusable Animated SVG Cartoon Messi -->
-        <svg viewBox="0 0 120 160" class="messi-svg" id="messiSvg1">
-          <!-- Messi Hair (Brown messy crop) -->
-          <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z"
-            fill="#4A2E18" />
-          <!-- Head/Face -->
-          <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1" />
-          <!-- Beard / Stubble -->
-          <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6" />
-          <!-- Eyes & Eyebrows -->
-          <ellipse id="messiEyeL1" cx="53" cy="36" rx="2.5" ry="3" fill="#172B4D" />
-          <ellipse id="messiEyeR1" cx="67" cy="36" rx="2.5" ry="3" fill="#172B4D" />
-          <path d="M49,30 Q54,28 58,31" stroke="#4A2E18" stroke-width="2.5" fill="none" stroke-linecap="round" />
-          <path d="M62,31 Q66,28 71,30" stroke="#4A2E18" stroke-width="2.5" fill="none" stroke-linecap="round" />
-          <!-- Nose & Smile -->
-          <path d="M60,37 L58,41 L61,41" stroke="#DCA27A" stroke-width="2" fill="none" />
-          <path id="messiMouth1" d="M54,46 Q60,50 66,46" stroke="#172B4D" stroke-width="2.5" fill="none"
-            stroke-linecap="round" />
-          <!-- Ears -->
-          <ellipse cx="40" cy="38" rx="4" ry="6" fill="#FDD5B1" />
-          <ellipse cx="80" cy="38" rx="4" ry="6" fill="#FDD5B1" />
-          <!-- Argentina Jersey 10 -->
-          <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z"
-            fill="#74B9E6" />
-          <rect x="54" y="54" width="12" height="50" fill="#FFFFFF" />
-          <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D"
-            text-anchor="middle">10</text>
-          <!-- Left Arm / Right Arm -->
-          <g id="messiLeftArm1">
-            <path d="M38,62 Q26,74 24,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
-          </g>
-          <g id="messiRightArm1">
-            <path d="M82,62 Q94,74 96,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
-          </g>
-          <!-- Shorts (Black) -->
-          <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D" />
-          <!-- Legs (Kicking right leg) -->
-          <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
-          <line id="messiKickLeg1" x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9"
-            stroke-linecap="round" />
-          <!-- Football Boots (Gold/White) -->
-          <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041" />
-          <ellipse id="messiBootR1" cx="73" cy="150" rx="9" ry="4" fill="#F5B041" />
-        </svg>
-      </div>
+    <div class="hud-actions">
+      <button type="button" class="hud-btn" id="uploadPhotoHudBtn" title="Upload custom photo">
+        <span>📸</span> Add Photo
+      </button>
+      <button type="button" class="hud-btn" id="soundToggleBtn" title="Toggle Sound">
+        <span id="soundIcon">🔊</span>
+        <span id="soundText">Sound On</span>
+      </button>
+      <button type="button" class="hud-btn" id="replayBtn" title="Restart">
+        <span>🔄</span> Replay
+      </button>
+    </div>
+  </header>
 
-      <!-- Narrative Text on Field (Where is he? -> I AM HERE!) -->
-      <div id="s1Narrative" class="scene-narrative-box hidden">
-        <p class="handwritten-annotation big-hand">Messi asks:</p>
-        <p class="scene-bold-text">“Where is he?”</p>
-        <button id="btnIAmHere" class="sticker-btn mt-3">
-          <span>I AM HERE! 🙋‍♂️</span>
-          <span class="sticker-arrow">→</span>
-        </button>
-      </div>
-    </section>
+  <!-- Master Viewport for Story Scenes -->
+  <main class="experience-viewport">
 
-    <!-- ================= SCENE 2: MESSI ASKS & RUNAWAY NO BUTTON ================= -->
-    <section id="scene2" class="full-scene scene-room">
-      <div class="scene-inner-content text-center">
-        <!-- Cartoon Messi speaking directly to Sabari -->
-        <div class="messi-spotlight-actor">
-          <svg viewBox="0 0 120 160" class="messi-svg-scene2">
-            <!-- Messi Hair -->
-            <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z"
-              fill="#4A2E18" />
-            <!-- Head/Face -->
-            <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1" />
-            <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6" />
-            <!-- Big happy eyes & smiling mouth -->
-            <ellipse cx="53" cy="36" rx="3" ry="3.5" fill="#172B4D" />
-            <ellipse cx="67" cy="36" rx="3" ry="3.5" fill="#172B4D" />
-            <path d="M52,45 Q60,53 68,45" stroke="#172B4D" stroke-width="3" fill="none" stroke-linecap="round" />
-            <!-- Jersey 10 -->
-            <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z"
-              fill="#74B9E6" />
-            <rect x="54" y="54" width="12" height="50" fill="#FFFFFF" />
-            <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D"
-              text-anchor="middle">10</text>
-            <!-- Thumbs up gesture -->
-            <path d="M82,62 Q96,48 94,36" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
-            <text x="94" y="34" font-size="18">👍</text>
-            <path d="M38,62 Q24,68 22,80" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round" />
-            <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D" />
-            <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
-            <line x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
-            <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041" />
-            <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041" />
+    <!-- =========================================================
+         SCENE 1: MESSI ARRIVES
+         ========================================================= -->
+    <section class="scene active" id="scene-intro" aria-label="Scene 1: Messi Arrives">
+      <div class="messi-stage-wrapper">
+        
+        <div class="messi-avatar-box">
+          <div class="messi-aura-glow"></div>
+          <svg class="messi-cutout-svg hero-cutout" id="mascotMascot" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mSkinG1" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fedbb5"/>
+                <stop offset="100%" stop-color="#e8b087"/>
+              </linearGradient>
+              <linearGradient id="mHairG1" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#5a381e"/>
+                <stop offset="50%" stop-color="#3d2312"/>
+                <stop offset="100%" stop-color="#2a160a"/>
+              </linearGradient>
+              <linearGradient id="mBeardG1" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#6e4222"/>
+                <stop offset="100%" stop-color="#4a2810"/>
+              </linearGradient>
+              <linearGradient id="mGoldG1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="50%" stop-color="#eab308"/>
+                <stop offset="100%" stop-color="#ca8a04"/>
+              </linearGradient>
+              <pattern id="mJerseyP1" width="28" height="10" patternUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+              </pattern>
+              <clipPath id="mJerseyClip1">
+                <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+              </clipPath>
+            </defs>
+
+            <g class="soundwave-rings">
+              <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+              <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+            </g>
+
+            <!-- Legs & Boots -->
+            <g class="messi-lower-body">
+              <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+              <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+              <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+              <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+              <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldG1)" stroke="#854d0e" stroke-width="1.5"/>
+              <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+              <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+              <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+              <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+              <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldG1)" stroke="#854d0e" stroke-width="1.5"/>
+              <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+              <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+            </g>
+
+            <!-- Torso & Jersey -->
+            <g class="messi-torso">
+              <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyP1)" clip-path="url(#mJerseyClip1)"/>
+              <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+              <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+              <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+              <g transform="translate(95, 153) scale(0.7)">
+                <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+              </g>
+              <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+            </g>
+
+            <!-- Right Arm -->
+            <g class="messi-arm-right">
+              <path d="M 166 137 L 188 150 L 180 172 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+              <path d="M 180 170 L 188 215 C 188 223 178 223 174 215 L 166 170 Z" fill="url(#mSkinG1)"/>
+              <circle cx="182" cy="220" r="8.5" fill="url(#mSkinG1)"/>
+            </g>
+
+            <!-- Left Arm with Golden Captain Armband "C" -->
+            <g class="messi-arm-left">
+              <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldG1)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+              <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+              <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinG1)"/>
+              <circle cx="62" cy="220" r="8.5" fill="url(#mSkinG1)"/>
+            </g>
+
+            <!-- Head & Speaking Mouth Assembly -->
+            <g class="messi-head-group">
+              <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinG1)"/>
+              <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG1)"/>
+              <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG1)"/>
+              <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinG1)" stroke="#c28c62" stroke-width="1"/>
+              <g class="messi-beard-group">
+                <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardG1)"/>
+                <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardG1)"/>
+                <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardG1)"/>
+              </g>
+              <g class="messi-eyes-group">
+                <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <g class="messi-eye left">
+                  <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                  <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                  <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                </g>
+                <g class="messi-eye right">
+                  <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                  <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                  <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                </g>
+              </g>
+              <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+              <!-- THE DYNAMIC SPEAKING MOUTH -->
+              <g class="messi-mouth-assembly">
+                <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                <g class="mouth-speaking">
+                  <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                  <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                  <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                  <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+              </g>
+              <g class="messi-hair-group">
+                <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairG1)"/>
+                <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+              </g>
+            </g>
           </svg>
+          <div class="voice-equalizer" id="scene1Equalizer">
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+          </div>
+          <div class="messi-badge-status" style="position: static; margin-top: 10px;">
+            🇦🇷 LIONEL MESSI #10 &bull; CAPTAIN &amp; BROTHER
+          </div>
         </div>
 
-        <div class="messi-dialogue-block mt-3">
-          <p class="scene2-preface">Messi smiles and says:</p>
-          <h1 class="scene2-headline">“I hear you are a NATIONAL WINNER! 🏆”</h1>
-          <p class="scene2-proud-shout">“Be proud, bro!”</p>
-
-          <h2 class="scene2-question mt-3">“Can we play a game? ⚽”</h2>
-
-          <!-- Two Choices: YES and RUNAWAY NO -->
-          <div class="choice-container-arena mt-4" id="choiceArena">
-            <button id="btnChoiceYes" class="choice-yes-btn">
-              <span>YES ✅</span>
-            </button>
-            <button id="btnChoiceNo" class="choice-no-btn">
-              <span>NO ❌</span>
-            </button>
+        <div class="dialogue-card" id="introDialogueCard">
+          <div class="dialogue-speaker">
+            <div class="speaker-tag">
+              <span class="speaker-badge-flag"></span>
+              <span>LIONEL MESSI</span>
+            </div>
+            <span style="font-size: 11px; color: var(--gold-primary); font-weight: 700;">CAPTAIN &bull; ARGENTINA</span>
           </div>
 
-          <p id="noDodgeHint" class="dodge-funny-hint hidden">Nice try! You literally cannot say no. 😂</p>
+          <div class="dialogue-text-wrapper">
+            <div class="dialogue-subtitle-en" id="introSubEn">"Hey Sabari! How are you? Do you love football?"</div>
+            <div class="dialogue-text-es" id="introTextEs">"¡Hola, Sabari! ¿Cómo estás? ¿Te gusta el fútbol?"</div>
+          </div>
+
+          <div class="dialogue-options" id="introOptions">
+            <button type="button" class="dialogue-btn primary" id="optLoveFootball">
+              "¡Sí! I love football!" ⚽❤️
+            </button>
+            <button type="button" class="dialogue-btn" id="optWaitMessi">
+              "Wait... Is that Messi?!" 😲
+            </button>
+          </div>
         </div>
+
       </div>
     </section>
 
-    <!-- ================= SCENE 3: NATIONAL WINNER REVEAL ================= -->
-    <section id="scene3" class="full-scene scene-winner-reveal">
-      <div class="scene-inner-content text-center">
+    <!-- =========================================================
+         SCENE 2: THE STADIUM & THE RIVALRY REVEAL
+         ========================================================= -->
+    <section class="scene" id="scene-tunnel" aria-label="Scene 2: The Stadium Journey">
+      <div class="messi-stage-wrapper">
 
-        <!-- Stage 3a: Tiny Trophy Waiting -->
-        <div id="s3TinyStage" class="tiny-trophy-stage">
-          <div id="s3TinyTrophy" class="tiny-trophy-icon">🏆</div>
-          <p id="s3TinkSound" class="tink-text hidden">TINK!</p>
+        <div class="match-vs-banner">
+          <div class="match-vs-badge">THE ULTIMATE CLASH OF TITANS</div>
+          <h2 class="match-vs-title">SABARI &amp; MESSI VS RONALDO</h2>
         </div>
+        
+        <div class="mascot-duo-wrapper">
+          <!-- Standing Lionel Messi Cutout -->
+          <div class="messi-avatar-box">
+            <div class="messi-aura-glow"></div>
+            <svg class="messi-cutout-svg hero-cutout" id="tunnelMessiCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="mSkinG2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fedbb5"/>
+                  <stop offset="100%" stop-color="#e8b087"/>
+                </linearGradient>
+                <linearGradient id="mHairG2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#5a381e"/>
+                  <stop offset="50%" stop-color="#3d2312"/>
+                  <stop offset="100%" stop-color="#2a160a"/>
+                </linearGradient>
+                <linearGradient id="mBeardG2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#6e4222"/>
+                  <stop offset="100%" stop-color="#4a2810"/>
+                </linearGradient>
+                <linearGradient id="mGoldG2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fde047"/>
+                  <stop offset="50%" stop-color="#eab308"/>
+                  <stop offset="100%" stop-color="#ca8a04"/>
+                </linearGradient>
+                <pattern id="mJerseyP2" width="28" height="10" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                  <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+                </pattern>
+                <clipPath id="mJerseyClip2">
+                  <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+                </clipPath>
+              </defs>
 
-        <!-- Stage 3b: Big Celebratory Poster (Hidden until hit) -->
-        <div id="s3CelebratoryPoster" class="celebratory-poster hidden">
-          <div class="poster-trophy-huge" id="s3BigTrophy">
-            <svg viewBox="0 0 100 100" class="svg-trophy-poster" aria-label="National Trophy">
-              <path d="M26 18 H74 V48 C74 64 63 74 50 74 C37 74 26 64 26 48 Z" fill="#F5B041" stroke="#172B4D"
-                stroke-width="4" />
-              <path d="M26 26 C12 26 12 48 26 48" fill="none" stroke="#172B4D" stroke-width="4" />
-              <path d="M74 26 C88 26 88 48 74 48" fill="none" stroke="#172B4D" stroke-width="4" />
-              <rect x="46" y="74" width="8" height="12" fill="#D68910" stroke="#172B4D" stroke-width="3" />
-              <rect x="30" y="86" width="40" height="10" rx="3" fill="#74B9E6" stroke="#172B4D" stroke-width="3" />
-              <polygon points="50,34 53,41 60,41 55,46 57,53 50,49 43,53 45,46 40,41 47,41" fill="#FFFFFF" />
+              <g class="soundwave-rings">
+                <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+              </g>
+
+              <!-- Legs & Boots -->
+              <g class="messi-lower-body">
+                <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+                <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+                <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldG2)" stroke="#854d0e" stroke-width="1.5"/>
+                <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+                <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+                <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldG2)" stroke="#854d0e" stroke-width="1.5"/>
+                <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+                <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+              </g>
+
+              <!-- Torso & Jersey -->
+              <g class="messi-torso">
+                <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyP2)" clip-path="url(#mJerseyClip2)"/>
+                <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+                <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+                <g transform="translate(95, 153) scale(0.7)">
+                  <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                  <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+                </g>
+                <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+              </g>
+
+              <!-- Right Arm -->
+              <g class="messi-arm-right">
+                <path d="M 166 137 L 188 150 L 180 172 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                <path d="M 180 170 L 188 215 C 188 223 178 223 174 215 L 166 170 Z" fill="url(#mSkinG2)"/>
+                <circle cx="182" cy="220" r="8.5" fill="url(#mSkinG2)"/>
+              </g>
+
+              <!-- Left Arm with Golden Captain Armband "C" -->
+              <g class="messi-arm-left">
+                <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldG2)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+                <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+                <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinG2)"/>
+                <circle cx="62" cy="220" r="8.5" fill="url(#mSkinG2)"/>
+              </g>
+
+              <!-- Head & Speaking Mouth Assembly -->
+              <g class="messi-head-group">
+                <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinG2)"/>
+                <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG2)"/>
+                <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG2)"/>
+                <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinG2)" stroke="#c28c62" stroke-width="1"/>
+                <g class="messi-beard-group">
+                  <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardG2)"/>
+                  <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardG2)"/>
+                  <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardG2)"/>
+                </g>
+                <g class="messi-eyes-group">
+                  <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                  <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                  <g class="messi-eye left">
+                    <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                    <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                    <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <g class="messi-eye right">
+                    <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                    <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                    <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                </g>
+                <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+                <!-- THE DYNAMIC SPEAKING MOUTH -->
+                <g class="messi-mouth-assembly">
+                  <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                  <g class="mouth-speaking">
+                    <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                    <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                    <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                    <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  </g>
+                </g>
+                <g class="messi-hair-group">
+                  <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                  <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                  <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairG2)"/>
+                  <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                  <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+                </g>
+              </g>
             </svg>
-          </div>
-
-          <div class="poster-stamp">MESSI APPROVED ✓</div>
-          <h1 class="poster-main-title">NATIONAL WINNER</h1>
-          <h2 class="poster-name">SABARI KRISHNA</h2>
-
-          <!-- Flying Annotations -->
-          <div class="flying-annotations-grid">
-            <div class="flying-tag tag-1">HARD WORK: DETECTED</div>
-            <div class="flying-tag tag-2">TALENT: SUSPICIOUS</div>
-            <div class="flying-tag tag-3">GOAT ENERGY: UNMEASURABLE</div>
-            <div class="flying-tag tag-4">PROUD PEOPLE: TOO MANY</div>
-          </div>
-
-          <!-- Messi Thumbs Up & Confusion -->
-          <div class="messi-in-poster">
-            <div class="messi-reaction-speech">
-              <p id="s3MessiQuote">“So… where's the celebration?” 😂</p>
+            <div class="voice-equalizer" id="tunnelEqualizer">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+            <div class="messi-badge-status" style="position: static; margin-top: 10px;">
+              🇦🇷 LIONEL MESSI #10 &bull; TEAM SABARI
             </div>
           </div>
 
-          <div class="mt-4">
-            <button id="btnScene3Celebrate" class="sticker-btn gold-sticker">
-              <span>CELEBRATE 🏆</span>
-              <span class="sticker-arrow">→</span>
+          <div style="font-family: var(--font-game); font-size: 38px; color: var(--gold-primary);">VS</div>
+
+          <!-- Standing Cristiano Ronaldo Cutout (Matching Messi High Detail) -->
+          <div class="ronaldo-avatar-box">
+            <div class="ronaldo-aura-glow"></div>
+            <svg class="ronaldo-cutout-svg hero-cutout" id="tunnelRonaldoCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="rSkinG" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ffeedd"/>
+                  <stop offset="35%" stop-color="#fedbb5"/>
+                  <stop offset="80%" stop-color="#e8b087"/>
+                  <stop offset="100%" stop-color="#cf956e"/>
+                </linearGradient>
+                <linearGradient id="rHairG" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2a2522"/>
+                  <stop offset="60%" stop-color="#141110"/>
+                  <stop offset="100%" stop-color="#080706"/>
+                </linearGradient>
+                <linearGradient id="rJerseyG" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ef4444"/>
+                  <stop offset="50%" stop-color="#dc2626"/>
+                  <stop offset="100%" stop-color="#991b1b"/>
+                </linearGradient>
+                <linearGradient id="rGreenG" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#16a34a"/>
+                  <stop offset="100%" stop-color="#14532d"/>
+                </linearGradient>
+                <linearGradient id="rGoldG" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fef08a"/>
+                  <stop offset="50%" stop-color="#facc15"/>
+                  <stop offset="100%" stop-color="#ca8a04"/>
+                </linearGradient>
+                <clipPath id="rJerseyClip">
+                  <path d="M 70 134 C 70 134 94 128 120 128 C 146 128 170 134 170 134 L 168 220 L 72 220 Z"/>
+                </clipPath>
+              </defs>
+
+              <g class="soundwave-rings">
+                <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(239, 68, 68, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(250, 204, 21, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+              </g>
+
+              <!-- Legs & Boots (Muscular Ronaldo Stance) -->
+              <g class="ronaldo-lower-body">
+                <!-- Left Leg -->
+                <rect x="88" y="260" width="23" height="60" rx="4" fill="url(#rSkinG)"/>
+                <rect x="87" y="285" width="25" height="36" rx="4" fill="#dc2626"/>
+                <rect x="87" y="285" width="25" height="7" fill="#15803d"/>
+                <rect x="87" y="295" width="25" height="3" fill="#facc15"/>
+                <!-- Left Nike Mercurial Crimson & Gold Boot -->
+                <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="#991b1b" stroke="#ca8a04" stroke-width="1.5"/>
+                <path d="M 84 328 Q 98 332 110 324" fill="none" stroke="#facc15" stroke-width="1.8"/>
+
+                <!-- Right Leg -->
+                <rect x="129" y="260" width="23" height="60" rx="4" fill="url(#rSkinG)"/>
+                <rect x="128" y="285" width="25" height="36" rx="4" fill="#dc2626"/>
+                <rect x="128" y="285" width="25" height="7" fill="#15803d"/>
+                <rect x="128" y="295" width="25" height="3" fill="#facc15"/>
+                <!-- Right Nike Mercurial Boot -->
+                <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="#991b1b" stroke="#ca8a04" stroke-width="1.5"/>
+                <path d="M 130 328 Q 144 332 156 324" fill="none" stroke="#facc15" stroke-width="1.8"/>
+
+                <!-- Dark Green / Garnet Shorts -->
+                <path d="M 72 216 L 168 216 L 164 265 L 126 265 L 120 232 L 114 265 L 76 265 Z" fill="#14532d" stroke="#052e16" stroke-width="1.5"/>
+                <path d="M 73 218 L 77 263 M 167 218 L 163 263" stroke="#dc2626" stroke-width="2"/>
+                <text x="144" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#facc15">7</text>
+              </g>
+
+              <!-- Torso & Portugal #7 Jersey -->
+              <g class="ronaldo-torso">
+                <rect x="68" y="126" width="104" height="94" fill="url(#rJerseyG)" clip-path="url(#rJerseyClip)"/>
+                <path d="M 70 134 C 70 134 94 128 120 128 C 146 128 170 134 170 134 L 168 220 L 72 220 Z" fill="none" stroke="#7f1d1d" stroke-width="2"/>
+                <!-- Green V-Neck Collar -->
+                <path d="M 102 128 L 120 144 L 138 128" fill="none" stroke="#15803d" stroke-width="3.5" stroke-linecap="round"/>
+                
+                <!-- Portugal FPF Crest Shield -->
+                <g transform="translate(142, 146) scale(0.65)">
+                  <path d="M 0 0 L 18 0 L 18 14 C 18 20 9 24 9 24 C 9 24 0 20 0 14 Z" fill="#dc2626" stroke="#ca8a04" stroke-width="1.5"/>
+                  <path d="M 0 0 L 9 0 L 9 24 C 9 24 0 20 0 14 Z" fill="#15803d"/>
+                  <circle cx="9" cy="10" r="5" fill="#facc15"/>
+                  <circle cx="9" cy="10" r="3" fill="#1e3a8a"/>
+                </g>
+
+                <!-- Golden #7 on Chest -->
+                <text x="120" y="180" font-family="'Outfit', sans-serif" font-weight="900" font-size="24" fill="url(#rGoldG)" stroke="#78350f" stroke-width="0.8" text-anchor="middle">7</text>
+              </g>
+
+              <!-- Muscular Athletic Right Arm -->
+              <g class="ronaldo-arm-right">
+                <path d="M 168 135 L 192 148 L 184 172 L 165 162 Z" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>
+                <path d="M 184 170 L 194 218 C 194 226 182 226 178 218 L 168 170 Z" fill="url(#rSkinG)"/>
+                <!-- White wristband -->
+                <rect x="180" y="206" width="13" height="6" rx="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                <circle cx="186" cy="223" r="8.5" fill="url(#rSkinG)"/>
+              </g>
+
+              <!-- Muscular Athletic Left Arm -->
+              <g class="ronaldo-arm-left">
+                <path d="M 72 135 L 48 148 L 56 172 L 75 162 Z" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>
+                <path d="M 56 170 L 46 218 C 46 226 58 226 62 218 L 72 170 Z" fill="url(#rSkinG)"/>
+                <circle cx="54" cy="223" r="8.5" fill="url(#rSkinG)"/>
+              </g>
+
+              <!-- Head, Hair, Diamond Stud & Dynamic Speaking Mouth -->
+              <g class="ronaldo-head-group">
+                <rect x="108" y="114" width="24" height="20" rx="3" fill="url(#rSkinG)"/>
+                <!-- Ears -->
+                <ellipse cx="77" cy="88" rx="6.5" ry="9.5" fill="url(#rSkinG)"/>
+                <ellipse cx="163" cy="88" rx="6.5" ry="9.5" fill="url(#rSkinG)"/>
+                <!-- Diamond Stud Earring on Left Ear (Viewer's right) -->
+                <circle cx="163" cy="94" r="2.4" fill="#ffffff" stroke="#38bdf8" stroke-width="0.9"/>
+                <circle cx="163" cy="94" r="1.2" fill="#7dd3fc"/>
+
+                <!-- Chiseled Head Contour -->
+                <path d="M 80 82 C 78 52 90 40 120 40 C 150 40 162 52 160 82 C 160 106 146 122 120 122 C 94 122 80 106 80 82 Z" fill="url(#rSkinG)" stroke="#b57e55" stroke-width="1"/>
+
+                <!-- Defined Athletic Brows & Eyes -->
+                <g class="ronaldo-eyes-group">
+                  <path d="M 92 65 Q 103 60 113 64" stroke="#1c1917" stroke-width="3" stroke-linecap="round" fill="none"/>
+                  <path d="M 127 64 Q 137 60 148 65" stroke="#1c1917" stroke-width="3" stroke-linecap="round" fill="none"/>
+                  <g class="ronaldo-eye left">
+                    <ellipse cx="103" cy="73" rx="6.2" ry="5.2" fill="#ffffff"/>
+                    <circle cx="103" cy="73" r="3.7" fill="#29180c"/>
+                    <circle cx="102" cy="72" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <g class="ronaldo-eye right">
+                    <ellipse cx="137" cy="73" rx="6.2" ry="5.2" fill="#ffffff"/>
+                    <circle cx="137" cy="73" r="3.7" fill="#29180c"/>
+                    <circle cx="136" cy="72" r="1.4" fill="#ffffff"/>
+                  </g>
+                </g>
+
+                <!-- Sharp Chiseled Nose -->
+                <path d="M 120 70 L 118 86 Q 120 89 123 87" fill="none" stroke="#a56c45" stroke-width="2.2" stroke-linecap="round"/>
+
+                <!-- Dynamic Speaking Mouth Assembly -->
+                <g class="ronaldo-mouth-assembly">
+                  <!-- Confident Cristiano Smirk Resting -->
+                  <path d="M 109 104 Q 120 109 131 103" fill="none" stroke="#2b1408" stroke-width="2.6" stroke-linecap="round" class="mouth-resting"/>
+                  
+                  <!-- Dynamic Speaking Mouth -->
+                  <g class="mouth-speaking">
+                    <ellipse cx="120" cy="106" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                    <path d="M 113 103 Q 120 106 127 103 L 126 105 Q 120 108 114 105 Z" fill="#ffffff" class="mouth-teeth"/>
+                    <ellipse cx="120" cy="110" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                    <path d="M 111 102 Q 120 104 129 102" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  </g>
+                </g>
+
+                <!-- Cristiano Signature Pompadour Slicked Hair & Skin Fade -->
+                <g class="ronaldo-hair-group">
+                  <!-- Faded Sides -->
+                  <path d="M 77 82 C 77 62 82 50 88 44 L 90 66 Z" fill="#221e1c" opacity="0.75"/>
+                  <path d="M 163 82 C 163 62 158 50 152 44 L 150 66 Z" fill="#221e1c" opacity="0.75"/>
+                  <!-- Main Styled Pompadour -->
+                  <path d="M 78 50 C 76 28 92 16 120 16 C 148 16 164 28 162 50 C 158 42 146 36 120 36 C 94 36 82 42 78 50 Z" fill="url(#rHairG)"/>
+                  <!-- Razor Part Line & Highlights -->
+                  <path d="M 94 34 C 106 14 128 14 142 22 C 134 20 118 18 106 26 Z" fill="#3f3834"/>
+                  <path d="M 112 24 C 124 12 144 14 150 24 C 142 20 128 20 120 26 Z" fill="#4d443e"/>
+                  <path d="M 98 42 L 108 30" stroke="#facc15" stroke-width="0.8" opacity="0.4"/>
+                </g>
+              </g>
+            </svg>
+            <div class="voice-equalizer" id="tunnelRonaldoEqualizer">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+            <div class="messi-badge-status" style="position: static; margin-top: 10px; background: linear-gradient(135deg, #991b1b, #ef4444);">
+              🇵🇹 CRISTIANO RONALDO #7 &bull; THE RIVAL
+            </div>
+          </div>
+        </div>
+
+        <div class="dialogue-card">
+          <div class="dialogue-speaker">
+            <div class="speaker-tag">
+              <span class="speaker-badge-flag"></span>
+              <span id="tunnelSpeakerName">LIONEL MESSI</span>
+            </div>
+            <span style="font-size: 11px; color: var(--argentina-cyan); font-weight: 700;">STADIUM TUNNEL</span>
+          </div>
+
+          <div class="dialogue-text-wrapper">
+            <div class="dialogue-subtitle-en" id="tunnelSubEn">"Today, we're playing together, Sabari!"</div>
+            <div class="dialogue-text-es" id="tunnelTextEs">"¡Hoy jugamos juntos, Sabari!"</div>
+          </div>
+
+          <div class="dialogue-options" id="tunnelOptions">
+            <button type="button" class="dialogue-btn primary" id="startMatchPitchBtn">
+              ENTER THE PITCH &amp; PLAY! 🏟️⚡
             </button>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- ================= SCENE 4: THE TROPHY PARTY ================= -->
-    <section id="scene4" class="full-scene scene-party">
-      <div class="scene-inner-content text-center">
-        <div class="party-streamers-art">🎉 ⚽ 🎊 🏆 🎈</div>
+    <!-- =========================================================
+         SCENE 3: THE PLAYABLE FOOTBALL GAME
+         ========================================================= -->
+    <section class="scene" id="scene-match" aria-label="Scene 3: Playable Football Game">
+      <div class="match-arena-wrapper">
+        
+        <div class="match-scoreboard">
+          <div class="team-badge-group sabari">
+            <span style="font-size: 20px;">🇦🇷</span>
+            <span class="team-name">SABARI &amp; MESSI</span>
+          </div>
 
-        <div class="trophy-centerpiece">
-          <div class="party-trophy-bounce">🏆</div>
+          <div class="scoreboard-score-box">
+            <span class="match-score-num" id="scoreSabari">0</span>
+            <span style="color: var(--text-secondary); font-weight: 800;">-</span>
+            <span class="match-score-num" id="scoreRonaldo">0</span>
+            <div class="match-timer" id="matchTimer">60s</div>
+          </div>
+
+          <div class="team-badge-group ronaldo">
+            <span class="team-name">RONALDO</span>
+            <span style="font-size: 20px;">🇵🇹</span>
+          </div>
+
+          <button type="button" class="hud-btn orientation-toggle-btn" id="toggleOrientationBtn" title="Switch between Vertical & Horizontal Pitch">
+            🔄 <span id="orientationBtnText">Vertical View ↕️</span>
+          </button>
         </div>
 
-        <div class="party-dialog-flow">
-          <h1 class="party-shout">JUST CASUALLY BECAME A NATIONAL WINNER.</h1>
-          <p class="party-sub-lead">NO BIG DEAL.</p>
-          <div class="pause-reveal mt-2">
-            <p class="party-actually">Actually…</p>
-            <h2 class="party-huge-deal">VERY BIG DEAL. 😂</h2>
-            <p class="party-proud-note">YOU SHOULD BE PROUD.</p>
+        <canvas id="footballPitchCanvas"></canvas>
+
+        <div class="cinematic-moment-banner" id="matchMomentBanner">
+          <div class="moment-title" id="momentTitle">MESSI PASS TO SABARI! ⚽✨</div>
+          <div class="moment-sub" id="momentSub">Take the shot, Sabari! The goal is open!</div>
+        </div>
+
+        <!-- UNIFIED ARCADE CONTROLS DECK (ALWAYS VISIBLE & FULLY INTERACTIVE) -->
+        <div class="arcade-controls-deck" id="arcadeControlsDeck" aria-label="Game Controls">
+          
+          <!-- Full-Width Neat Instruction Strip -->
+          <div class="arcade-instruction-strip">
+            <span class="strip-tag">💡 HOW TO PLAY</span>
+            <span class="strip-text">👆 Drag on pitch or use D-Pad to move &bull; Tap buttons or use <kbd>SPACE</kbd> Shoot &bull; <kbd>K</kbd> Pass &bull; <kbd>L</kbd> Tackle</span>
+          </div>
+
+          <!-- Bottom Controls Row: D-Pad, Center Whistle & Actions -->
+          <div class="arcade-controls-row">
+            <!-- Left: Virtual D-Pad for Direction Control (Touch & Click) -->
+            <div class="mobile-dpad" aria-label="Virtual D-Pad">
+              <div></div>
+              <button type="button" class="dpad-btn" data-dir="up" aria-label="Move Up">▲</button>
+              <div></div>
+              <button type="button" class="dpad-btn" data-dir="left" aria-label="Move Left">◀</button>
+              <div class="dpad-center-indicator">⚽</div>
+              <button type="button" class="dpad-btn" data-dir="right" aria-label="Move Right">▶</button>
+              <div></div>
+              <button type="button" class="dpad-btn" data-dir="down" aria-label="Move Down">▼</button>
+              <div></div>
+            </div>
+
+            <!-- Center: Quick Whistle & Keyboard Badges -->
+            <div class="arcade-center-panel">
+              <button type="button" class="hud-btn whistle-mini-btn" id="finishMatchEarlyBtn">
+                Final Whistle ⏱️
+              </button>
+              <div class="arcade-keyboard-legend">
+                <span class="arcade-badge" id="badgeMove">W A S D</span>
+                <span class="arcade-badge" id="badgeSprint">SHIFT Sprint</span>
+              </div>
+            </div>
+
+            <!-- Right: Three Dedicated Arcade Action Buttons -->
+            <div class="mobile-action-btns">
+              <button type="button" class="mob-act-btn pass" id="mobPassBtn" title="Pass to Messi (K)">
+                <span class="btn-emoji">⚽</span>
+                <span class="btn-title">PASS</span>
+                <span class="btn-key">[K]</span>
+              </button>
+              <button type="button" class="mob-act-btn tackle" id="mobTackleBtn" title="Tackle Ronaldo (L)">
+                <span class="btn-emoji">⚡</span>
+                <span class="btn-title">TACKLE</span>
+                <span class="btn-key">[L]</span>
+              </button>
+              <button type="button" class="mob-act-btn shoot" id="mobShootBtn" title="Shoot at Goal (SPACE)">
+                <span class="btn-emoji">🚀</span>
+                <span class="btn-title">SHOOT</span>
+                <span class="btn-key">[SPACE]</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="mt-4">
-          <button id="btnScene4" class="sticker-btn">
-            <span>but wait… who's cheering?</span>
-            <span class="sticker-arrow">→</span>
-          </button>
-        </div>
       </div>
     </section>
 
-    <!-- ================= SCENE 5: THE PHOTO WALL (CENTERPIECE) ================= -->
-    <section id="scene5" class="full-scene scene-photowall">
-      <div class="wall-header text-center">
-        <p class="wall-question">BUT WAIT…</p>
-        <h1 class="wall-heading">WHO'S CHEERING?</h1>
-        <p class="wall-sub">(Messi is pinning them onto the wall one by one)</p>
-      </div>
+    <!-- =========================================================
+         SCENE 4: AFTER THE MATCH (BYPASSED - DIRECTLY GOES TO MEMORIES)
+         ========================================================= -->
+    <section class="scene" id="scene-aftermath" aria-label="Scene 4: After The Match" style="display: none !important;">
+      <div class="messi-stage-wrapper">
 
-      <!-- Pinned Physical Polaroids Area -->
-      <div id="polaroidsPinboard" class="polaroids-pinboard">
-        <!-- Filled sequentially by app.js when Messi kicks the ball -->
-      </div>
-
-      <!-- Messi with Tape interacting with the wall -->
-      <div class="messi-taper-bar">
-        <div class="messi-taper-doodle">
-          <span class="messi-taper-icon">🐐</span>
-          <span id="messiWallStatus" class="messi-tape-speech">“Hold on, pinning the squad…”</span>
-        </div>
-      </div>
-
-      <div class="text-center mt-4">
-        <button id="btnScene5Next" class="sticker-btn">
-          <span>look at this crowd</span>
-          <span class="sticker-arrow">→</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- ================= SCENE 6: THE CROWD ================= -->
-    <section id="scene6" class="full-scene scene-crowd">
-      <div class="scene-inner-content text-center">
-        <!-- Floating Photo Collage Stadium Background -->
-        <div id="crowdPhotoStrip" class="crowd-photo-strip"></div>
-
-        <div class="crowd-poetic-lines">
-          <p class="crowd-strobe">Different people.</p>
-          <p class="crowd-strobe">Different places.</p>
-          <p class="crowd-strobe funny-tint">Different levels of nonsense. 😂</p>
+        <div class="match-vs-banner">
+          <div class="match-vs-badge">FULL TIME WHISTLE</div>
+          <h2 class="match-vs-title" id="finalResultTitle">WHAT A MATCH!</h2>
         </div>
 
-        <div class="crowd-unison mt-3">
-          <p class="crowd-common-note">One thing in common.</p>
-          <h1 class="crowd-proud-proclamation">WE'RE PROUD OF YOU.</h1>
-          <p class="crowd-always-tag">Always.</p>
-        </div>
+        <!-- Standing Lionel Messi Cutout -->
+        <div class="messi-avatar-box">
+          <div class="messi-aura-glow"></div>
+          <svg class="messi-cutout-svg hero-cutout" id="aftermathMessiCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mSkinG4" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fedbb5"/>
+                <stop offset="100%" stop-color="#e8b087"/>
+              </linearGradient>
+              <linearGradient id="mHairG4" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#5a381e"/>
+                <stop offset="50%" stop-color="#3d2312"/>
+                <stop offset="100%" stop-color="#2a160a"/>
+              </linearGradient>
+              <linearGradient id="mBeardG4" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#6e4222"/>
+                <stop offset="100%" stop-color="#4a2810"/>
+              </linearGradient>
+              <linearGradient id="mGoldG4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="50%" stop-color="#eab308"/>
+                <stop offset="100%" stop-color="#ca8a04"/>
+              </linearGradient>
+              <pattern id="mJerseyP4" width="28" height="10" patternUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+              </pattern>
+              <clipPath id="mJerseyClip4">
+                <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+              </clipPath>
+            </defs>
 
-        <div class="corner-promise-card mt-3">
-          <p class="promise-p1">Whatever happens,</p>
-          <p class="promise-p2">you've got people in your corner.</p>
-        </div>
+            <g class="soundwave-rings">
+              <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+              <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+            </g>
 
-        <div class="heart-winner-box mt-3">
-          <p class="heart-intro">AND IN OUR HEARTS…</p>
-          <h2 class="heart-winner-title">YOU'RE ALWAYS A WINNER. 🏆</h2>
-        </div>
+            <!-- Legs & Boots -->
+            <g class="messi-lower-body">
+              <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+              <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+              <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+              <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+              <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldG4)" stroke="#854d0e" stroke-width="1.5"/>
+              <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+              <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+              <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+              <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+              <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldG4)" stroke="#854d0e" stroke-width="1.5"/>
+              <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+              <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+            </g>
 
-        <div class="mt-4">
-          <button id="btnScene6Next" class="sticker-btn">
-            <span>continue</span>
-            <span class="sticker-arrow">→</span>
-          </button>
-        </div>
-      </div>
-    </section>
+            <!-- Torso & Jersey -->
+            <g class="messi-torso">
+              <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyP4)" clip-path="url(#mJerseyClip4)"/>
+              <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+              <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+              <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+              <g transform="translate(95, 153) scale(0.7)">
+                <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+              </g>
+              <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+            </g>
 
-    <!-- ================= SCENE 7: MESSI RUINS THE EMOTIONAL MOMENT ================= -->
-    <section id="scene7" class="full-scene scene-messi-ruins">
-      <div class="scene-inner-content text-center">
-        <!-- Messi walking right up to camera -->
-        <div class="messi-deadpan-actor">
-          <svg viewBox="0 0 120 160" class="messi-svg-large">
-            <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z"
-              fill="#4A2E18" />
-            <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1" />
-            <!-- Straight deadpan eyes -->
-            <line x1="50" y1="36" x2="56" y2="36" stroke="#172B4D" stroke-width="3" stroke-linecap="round" />
-            <line x1="64" y1="36" x2="70" y2="36" stroke="#172B4D" stroke-width="3" stroke-linecap="round" />
-            <!-- Flat mouth -->
-            <line x1="54" y1="46" x2="66" y2="46" stroke="#172B4D" stroke-width="2.5" stroke-linecap="round" />
-            <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z"
-              fill="#74B9E6" />
-            <rect x="54" y="54" width="12" height="50" fill="#FFFFFF" />
-            <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D"
-              text-anchor="middle">10</text>
-            <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D" />
-            <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
-            <line x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round" />
-            <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041" />
-            <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041" />
+            <!-- Right Arm -->
+            <g class="messi-arm-right">
+              <path d="M 166 137 L 188 150 L 180 172 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+              <path d="M 180 170 L 188 215 C 188 223 178 223 174 215 L 166 170 Z" fill="url(#mSkinG4)"/>
+              <circle cx="182" cy="220" r="8.5" fill="url(#mSkinG4)"/>
+            </g>
+
+            <!-- Left Arm with Golden Captain Armband "C" -->
+            <g class="messi-arm-left">
+              <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldG4)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+              <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+              <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinG4)"/>
+              <circle cx="62" cy="220" r="8.5" fill="url(#mSkinG4)"/>
+            </g>
+
+            <!-- Head & Speaking Mouth Assembly -->
+            <g class="messi-head-group">
+              <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinG4)"/>
+              <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG4)"/>
+              <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG4)"/>
+              <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinG4)" stroke="#c28c62" stroke-width="1"/>
+              <g class="messi-beard-group">
+                <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardG4)"/>
+                <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardG4)"/>
+                <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardG4)"/>
+              </g>
+              <g class="messi-eyes-group">
+                <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <g class="messi-eye left">
+                  <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                  <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                  <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                </g>
+                <g class="messi-eye right">
+                  <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                  <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                  <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                </g>
+              </g>
+              <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+              <!-- THE DYNAMIC SPEAKING MOUTH -->
+              <g class="messi-mouth-assembly">
+                <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                <g class="mouth-speaking">
+                  <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                  <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                  <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                  <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+              </g>
+              <g class="messi-hair-group">
+                <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairG4)"/>
+                <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+              </g>
+            </g>
           </svg>
-        </div>
-
-        <div class="deadpan-dialog mt-3">
-          <p class="deadpan-short">“Okay.”</p>
-          <h1 class="deadpan-punchline mt-2">“That's enough feelings.” 😂</h1>
-        </div>
-
-        <div class="mt-4">
-          <button id="btnScene7Next" class="sticker-btn gold-sticker">
-            <span>kick ball to continue ⚽</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= SCENE 8: INTERACTIVE FOOTBALL GAME ================= -->
-    <section id="scene8" class="full-scene scene-football-game">
-      <div class="game-scene-wrapper">
-        <!-- Game Header -->
-        <div class="game-header text-center">
-          <div class="game-badge-round" id="gameRoundBadge">ROUND 1: WARM-UP ⚽</div>
-          <h1 class="game-title">OKAY NO.10… YOUR TURN. ⚽</h1>
-          <p class="game-subtitle">Messi has prepared a tiny challenge for you.</p>
-          <p class="game-whisper">“Don't overthink it. Seriously. 😂”</p>
-        </div>
-
-        <!-- The Interactive Pitch Arena -->
-        <div class="game-pitch-arena" id="gamePitch">
-          <!-- Stadium Floodlights & Crowd Background -->
-          <div class="game-pitch-sky">
-            <div class="game-crowd-silhouette"></div>
-            <div class="game-floodlights-glow"></div>
+          <div class="voice-equalizer" id="aftermathEqualizer">
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
           </div>
+          <div class="messi-badge-status" style="position: static; margin-top: 10px;">
+            🇦🇷 LIONEL MESSI #10 &bull; CAPTAIN &amp; BROTHER
+          </div>
+        </div>
 
-          <!-- Goal Post at the Top -->
-          <div class="game-goal-frame" id="goalFrame">
-            <div class="goal-net-pattern"></div>
-            <div class="goal-crossbar"></div>
-            <div class="goal-post-left"></div>
-            <div class="goal-post-right"></div>
-
-            <!-- Funny Goalkeeper (Round 3: Overthinking FC) -->
-            <div id="overthinkingKeeper" class="goalkeeper-actor hidden">
-              <span class="keeper-emoji">🧠</span>
-              <span class="keeper-jersey">OVERTHINKING FC</span>
+        <div class="dialogue-card">
+          <div class="dialogue-speaker">
+            <div class="speaker-tag">
+              <span class="speaker-badge-flag"></span>
+              <span>LIONEL MESSI</span>
             </div>
-
-            <!-- 3 Interactive Target Zones inside goal -->
-            <div class="goal-targets-container">
-              <div class="goal-target target-proud" id="targetProud" data-target="proud">
-                <span class="target-icon">🎯</span>
-                <span class="target-name">PROUD</span>
-              </div>
-              <div class="goal-target target-happy" id="targetHappy" data-target="happy">
-                <span class="target-icon">🎯</span>
-                <span class="target-name">HAPPY</span>
-              </div>
-              <div class="goal-target target-vamos" id="targetVamos" data-target="vamos">
-                <span class="target-icon">🎯</span>
-                <span class="target-name">VAMOS</span>
-              </div>
-            </div>
+            <span style="font-size: 11px; color: var(--gold-primary); font-weight: 700;">BROTHERHOOD</span>
           </div>
 
-          <!-- Live Game Speech Bubble above Messi -->
-          <div id="gameMessiBubble" class="game-speech-bubble">
-            <p id="gameMessiText">“Okay No.10… Your turn. Kick the ball. Please don't overthink the angle. 😂”</p>
+          <div class="dialogue-text-wrapper">
+            <div class="dialogue-subtitle-en" id="afterSubEn">"Great match, Sabari! I'm proud of you! But wait... I have something special to show you."</div>
+            <div class="dialogue-text-es" id="afterTextEs">"¡Buen partido, Sabari! ¡Estoy orgulloso de ti! Pero espera... tengo algo especial para mostrarte."</div>
           </div>
 
-          <!-- Cartoon Messi (Standing beside ball / Dribbling / Passing) -->
-          <div id="gameMessiActor" class="game-messi-character">
-            <svg viewBox="0 0 120 160" class="game-messi-svg" id="gameMessiSvg">
-              <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z" fill="#4A2E18"/>
-              <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1"/>
-              <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6"/>
-              <ellipse cx="53" cy="36" rx="2.8" ry="3.2" fill="#172B4D"/>
-              <ellipse cx="67" cy="36" rx="2.8" ry="3.2" fill="#172B4D"/>
-              <path id="gameMessiMouth" d="M54,46 Q60,51 66,46" stroke="#172B4D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-              <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z" fill="#74B9E6"/>
-              <rect x="54" y="54" width="12" height="50" fill="#FFFFFF"/>
-              <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D" text-anchor="middle">10</text>
-              <g id="gameMessiArmL"><path d="M38,62 Q26,74 24,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/></g>
-              <g id="gameMessiArmR"><path d="M82,62 Q94,74 96,88" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/></g>
-              <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D"/>
-              <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
-              <line id="gameMessiLegR" x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
-              <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041"/>
-              <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041"/>
-            </svg>
-          </div>
-
-          <!-- The Interactive Football on Pitch -->
-          <div id="gamePitchBall" class="game-pitch-ball">
-            <svg viewBox="0 0 100 100" class="svg-game-ball" aria-label="Kickable Football">
-              <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#172B4D" stroke-width="4.5"/>
-              <polygon points="50,30 67,42 61,62 39,62 33,42" fill="#172B4D"/>
-              <line x1="50" y1="30" x2="50" y2="8" stroke="#172B4D" stroke-width="4"/>
-              <line x1="67" y1="42" x2="88" y2="34" stroke="#172B4D" stroke-width="4"/>
-              <line x1="61" y1="62" x2="76" y2="80" stroke="#172B4D" stroke-width="4"/>
-              <line x1="39" y1="62" x2="24" y2="80" stroke="#172B4D" stroke-width="4"/>
-              <line x1="33" y1="42" x2="12" y2="34" stroke="#172B4D" stroke-width="4"/>
-            </svg>
-          </div>
-
-          <!-- Aim Indicator Line (Points from ball toward mouse / touch) -->
-          <div id="aimTrajectory" class="aim-trajectory hidden">
-            <div class="aim-line"></div>
-            <div class="aim-arrow">➤</div>
-          </div>
-
-          <!-- Power Charge Meter -->
-          <div class="power-meter-container" id="powerMeterBox">
-            <div class="power-meter-label">KICK POWER: <span id="powerText">0%</span></div>
-            <div class="power-meter-track">
-              <div id="powerMeterFill" class="power-meter-fill"></div>
-            </div>
-          </div>
-
-          <!-- Timing Indicator for Round 2 (Messi Assist) -->
-          <div id="timingAssistBox" class="timing-assist-box hidden">
-            <div class="assist-timing-ring" id="assistTimingRing"></div>
-            <p class="assist-timing-text">CLICK WHEN RINGS MATCH! ⚡</p>
-          </div>
-
-          <!-- Game Floating Instructions -->
-          <div class="game-control-tips">
-            <span class="desktop-tip">🖱️ <strong>MOUSE CONTROL:</strong> Move to aim • Hold to charge • Release to kick!</span>
-            <span class="mobile-tip">📱 <strong>Drag to aim + release to kick.</strong></span>
-          </div>
-
-          <!-- Try Again Button (shown after a funny miss) -->
-          <div id="gameRetryArea" class="retry-action-area hidden">
-            <button id="btnRetryKick" class="sticker-btn gold-sticker">
-              <span>TRY AGAIN ⚽</span>
+          <div class="dialogue-options">
+            <button type="button" class="dialogue-btn primary" id="discoverTeamSceneBtn">
+              DISCOVER YOUR SQUAD &amp; MEMORIES 📸✨
             </button>
           </div>
         </div>
 
-        <!-- ================= HAT-TRICK CELEBRATION MODAL ================= -->
-        <div id="hatTrickModal" class="hat-trick-modal hidden">
-          <div class="hat-trick-card">
-            <div class="hat-trick-badge">🏆 MESSI APPROVED ✅</div>
-            <h1 class="hat-trick-title">HAT-TRICK! ⚽⚽⚽</h1>
-            <p class="hat-trick-subtitle">NO.10 HAS DONE IT.</p>
-
-            <!-- Special Funny Score -->
-            <div class="funny-score-card mt-3">
-              <div class="score-line"><span>GOALS:</span> <strong>3 / 3</strong></div>
-              <div class="score-line"><span>STYLE:</span> <strong>QUESTIONABLE</strong></div>
-              <div class="score-line"><span>EFFORT:</span> <strong>10 / 10</strong></div>
-              <div class="score-line"><span>OVERTHINKING:</span> <strong>TEMPORARILY CONTROLLED</strong></div>
-              <div class="score-line highlight-gold"><span>GOAT ENERGY:</span> <strong>MAXIMUM 😂</strong></div>
-            </div>
-
-            <!-- Messi final game note -->
-            <div class="messi-hat-trick-note mt-3">
-              <p>“See? You had it in you. Now stop overthinking. 😂”</p>
-              <span class="status-stamp">GOAT STATUS: APPROVED 🐐</span>
-            </div>
-
-            <button id="btnToCrowdFinale" class="sticker-btn huge-vamos-sticker mt-4">
-              <span>SEE WHO'S CHEERING FOR YOU 📸 →</span>
-            </button>
-          </div>
-        </div>
       </div>
     </section>
 
-    <!-- ================= SCENE 9: FINAL CINEMATIC & CELEBRATION ================= -->
-    <section id="scene9" class="full-scene scene-final">
-      <div class="scene-inner-content text-center">
-        <!-- Floating Surrounding Photos of the Squad -->
-        <div id="finalCrowdCircle" class="final-crowd-circle">
-          <!-- Injected dynamically from supporters array -->
+    <!-- =========================================================
+         SCENE 5: FULL-PAGE CINEMATIC SLIDESHOW (ALL PHOTOS IN ONE PLACE)
+         ========================================================= -->
+    <section class="scene" id="scene-slideshow" aria-label="Scene 5: Photo Slideshow">
+      <div class="slideshow-fullpage-viewport">
+        
+        <div class="slideshow-header">
+          <h2 class="slideshow-title">YOUR SQUAD &bull; YOUR GLORY &bull; YOUR MEMORIES</h2>
         </div>
 
-        <div id="finalPreCelebration" class="final-gentle-flow">
-          <p class="final-quote-head">“Wait…”</p>
-          <h2 class="final-quote-sub">“LOOK AT YOUR CROWD.”</h2>
-          <p class="final-team-note">“That's your team. Keep going, No.10.”</p>
+        <!-- Slideshow Stage Frame -->
+        <div class="slideshow-stage-frame" id="slideshowStageFrame">
+          
+          <!-- Prev & Next Floating Buttons -->
+          <button type="button" class="slideshow-nav-arrow prev" id="slidePrevBtn" title="Previous Photo (Left Arrow)">⟨</button>
+          <button type="button" class="slideshow-nav-arrow next" id="slideNextBtn" title="Next Photo (Right Arrow)">⟩</button>
 
-          <!-- Messi + Trophy Display -->
-          <div class="final-messi-trophy-display mt-3">
-            <div class="final-trophy-bounce">🏆</div>
-            <div class="final-messi-figure">
-              <svg viewBox="0 0 120 160" class="messi-svg-scene2">
-                <path d="M42,24 C40,12 60,6 74,10 C86,14 88,26 84,36 C78,28 66,24 54,26 C48,27 44,30 42,24 Z" fill="#4A2E18"/>
-                <ellipse cx="60" cy="38" rx="20" ry="18" fill="#FDD5B1"/>
-                <path d="M46,42 C48,54 72,54 74,42 C74,50 68,57 60,57 C52,57 46,50 46,42 Z" fill="#8C5835" opacity="0.6"/>
-                <ellipse cx="53" cy="36" rx="3" ry="3.5" fill="#172B4D"/>
-                <ellipse cx="67" cy="36" rx="3" ry="3.5" fill="#172B4D"/>
-                <path d="M52,45 Q60,53 68,45" stroke="#172B4D" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <path d="M38,58 L46,54 L74,54 L82,58 L90,82 L78,85 L74,74 L74,104 L46,104 L46,74 L42,85 L30,82 Z" fill="#74B9E6"/>
-                <rect x="54" y="54" width="12" height="50" fill="#FFFFFF"/>
-                <text x="60" y="86" font-family="'Fredoka', sans-serif" font-size="20" font-weight="800" fill="#172B4D" text-anchor="middle">10</text>
-                <path d="M82,62 Q96,48 94,36" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/>
-                <text x="94" y="34" font-size="18">👍</text>
-                <path d="M38,62 Q24,68 22,80" stroke="#FDD5B1" stroke-width="9" fill="none" stroke-linecap="round"/>
-                <path d="M46,104 L74,104 L76,124 L62,124 L60,114 L58,124 L44,124 Z" fill="#172B4D"/>
-                <line x1="52" y1="124" x2="50" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
-                <line x1="68" y1="124" x2="70" y2="148" stroke="#FDD5B1" stroke-width="9" stroke-linecap="round"/>
-                <ellipse cx="47" cy="150" rx="9" ry="4" fill="#F5B041"/>
-                <ellipse cx="73" cy="150" rx="9" ry="4" fill="#F5B041"/>
+          <!-- The Current Photo -->
+          <img src="" alt="Slideshow Memory" class="slideshow-photo-img" id="slideshowMainImg">
+
+          <!-- Slideshow Caption Bar -->
+          <div class="slideshow-caption-bar">
+            <div class="slideshow-caption-left">
+              <span class="slideshow-tag-pill" id="slideshowTag">National Winner</span>
+              <h3 class="slideshow-photo-title" id="slideshowTitle">WorldSkills Ceremony</h3>
+              <p class="slideshow-photo-msg" id="slideshowMsg">"Always cheering for you. No matter what."</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+              <div class="slideshow-counter-badge" id="slideshowCounter">
+                Photo 1 of 15
+              </div>
+              <button type="button" class="delete-photo-btn" id="deleteCurrentPhotoBtn" title="Delete this photo from slideshow">
+                🗑️ Delete Photo
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Slideshow Bottom Navigation Strip -->
+        <div class="slideshow-bottom-strip">
+          <div class="slideshow-progress-dots" id="slideshowDotsContainer">
+            <!-- Dynamic dots injected via app.js -->
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="button" class="ctrl-btn" id="openUploadFromSlideshowBtn">
+              📸 Add Photo
+            </button>
+            <button type="button" class="dialogue-btn primary" id="goToPromiseFromSlideshowBtn">
+              LISTEN TO MESSI'S PERSONAL PROMISE 🌟
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SCENE 6: FINAL ENDING — PERSONAL PROMISE (IN MESSI'S VOICE!)
+         ========================================================= -->
+    <section class="scene" id="scene-promise" aria-label="Scene 6: Personal Promise to Sabari Krishna">
+      
+      <!-- Stage Lights Dimmed: Messi stands beside Sabari -->
+      <div class="stadium-return-overlay" id="promisePreambleStage">
+        
+        <div class="messi-avatar-box" id="preambleMessiBox" style="margin-bottom: 14px;">
+          <div class="messi-aura-glow"></div>
+          <svg class="messi-cutout-svg hero-cutout" id="preambleMessiCartoon" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mSkinGPre" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fedbb5"/>
+                <stop offset="100%" stop-color="#e8b087"/>
+              </linearGradient>
+              <linearGradient id="mHairGPre" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#5a381e"/>
+                <stop offset="50%" stop-color="#3d2312"/>
+                <stop offset="100%" stop-color="#2a160a"/>
+              </linearGradient>
+              <linearGradient id="mBeardGPre" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#6e4222"/>
+                <stop offset="100%" stop-color="#4a2810"/>
+              </linearGradient>
+              <linearGradient id="mGoldGPre" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="50%" stop-color="#eab308"/>
+                <stop offset="100%" stop-color="#ca8a04"/>
+              </linearGradient>
+              <pattern id="mJerseyPPre" width="28" height="10" patternUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+              </pattern>
+              <clipPath id="mJerseyClipPre">
+                <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+              </clipPath>
+            </defs>
+
+            <g class="soundwave-rings">
+              <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+              <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+            </g>
+
+            <!-- Legs & Boots -->
+            <g class="messi-lower-body">
+              <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+              <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+              <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+              <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+              <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldGPre)" stroke="#854d0e" stroke-width="1.5"/>
+              <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+              <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+              <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+              <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+              <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldGPre)" stroke="#854d0e" stroke-width="1.5"/>
+              <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+              <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+            </g>
+
+            <!-- Torso & Jersey -->
+            <g class="messi-torso">
+              <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyPPre)" clip-path="url(#mJerseyClipPre)"/>
+              <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+              <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+              <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+              <g transform="translate(95, 153) scale(0.7)">
+                <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+              </g>
+              <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+            </g>
+
+            <!-- Right Arm -->
+            <g class="messi-arm-right">
+              <path d="M 166 137 L 188 150 L 180 172 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+              <path d="M 180 170 L 188 215 C 188 223 178 223 174 215 L 166 170 Z" fill="url(#mSkinGPre)"/>
+              <circle cx="182" cy="220" r="8.5" fill="url(#mSkinGPre)"/>
+            </g>
+
+            <!-- Left Arm with Golden Captain Armband "C" -->
+            <g class="messi-arm-left">
+              <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+              <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldGPre)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+              <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+              <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinGPre)"/>
+              <circle cx="62" cy="220" r="8.5" fill="url(#mSkinGPre)"/>
+            </g>
+
+            <!-- Head & Speaking Mouth Assembly -->
+            <g class="messi-head-group">
+              <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinGPre)"/>
+              <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinGPre)"/>
+              <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinGPre)"/>
+              <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinGPre)" stroke="#c28c62" stroke-width="1"/>
+              <g class="messi-beard-group">
+                <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardGPre)"/>
+                <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardGPre)"/>
+                <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardGPre)"/>
+              </g>
+              <g class="messi-eyes-group">
+                <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <g class="messi-eye left">
+                  <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                  <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                  <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                </g>
+                <g class="messi-eye right">
+                  <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                  <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                  <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                </g>
+              </g>
+              <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+              <!-- THE DYNAMIC SPEAKING MOUTH -->
+              <g class="messi-mouth-assembly">
+                <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                <g class="mouth-speaking">
+                  <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                  <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                  <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                  <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+              </g>
+              <g class="messi-hair-group">
+                <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairGPre)"/>
+                <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+              </g>
+            </g>
+          </svg>
+          <div class="voice-equalizer" id="preambleEqualizer">
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+          </div>
+          <div class="messi-badge-status" style="position: static; margin-top: 10px;">
+            🇦🇷 LIONEL MESSI #10 &bull; CAPTAIN &amp; BROTHER
+          </div>
+        </div>
+
+        <div class="dialogue-card">
+          <div class="dialogue-speaker">
+            <div class="speaker-tag">
+              <span class="speaker-badge-flag"></span>
+              <span>LIONEL MESSI</span>
+            </div>
+            <span style="font-size: 11px; color: var(--gold-primary); font-weight: 700;">A SACRED PROMISE</span>
+          </div>
+
+          <div class="dialogue-text-wrapper">
+            <div class="dialogue-subtitle-en" style="font-size: 20px; font-weight: 800; color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.3); margin-bottom: 6px;">
+              "Sabari... Stand beside me. I have a promise to make to you."
+            </div>
+            <div class="dialogue-text-es" style="font-size: 15px; color: var(--gold-primary); font-style: italic;">
+              "Sabari... Ven aquí conmigo. Tengo una promesa que hacerte."
+            </div>
+          </div>
+
+          <div class="dialogue-options" style="justify-content: center;">
+            <button type="button" class="dialogue-btn primary" id="startBlackoutPromiseBtn">
+              LISTEN TO MESSI'S PROMISE (WITH AUDIO) ✨
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Black Screen Overlay: Spoken in Messi's Voice Line by Line with Subtitles & Animated Messi Cutout -->
+      <div class="promise-blackout-screen" id="promiseBlackoutScreen">
+        
+        <div class="promise-voice-active-indicator">
+          <div class="voice-wave-dot"></div>
+          <span>🎙️ LIONEL MESSI IS SPEAKING TO YOU (AUDIO &amp; ENGLISH SUBTITLES)</span>
+        </div>
+
+        <div class="promise-blackout-layout">
+          <!-- Left: Animated Lionel Messi Cutout that actively speaks -->
+          <div class="promise-messi-stage" id="promiseMessiStage">
+            <div class="promise-messi-animated-wrapper" id="promiseMessiCutout">
+              <div class="messi-aura-glow"></div>
+              
+              <svg class="messi-cutout-svg hero-cutout" id="blackoutMessiCutoutSvg" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="mSkinG6" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#fedbb5"/>
+                    <stop offset="100%" stop-color="#e8b087"/>
+                  </linearGradient>
+                  <linearGradient id="mHairG6" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#5a381e"/>
+                    <stop offset="50%" stop-color="#3d2312"/>
+                    <stop offset="100%" stop-color="#2a160a"/>
+                  </linearGradient>
+                  <linearGradient id="mBeardG6" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#6e4222"/>
+                    <stop offset="100%" stop-color="#4a2810"/>
+                  </linearGradient>
+                  <linearGradient id="mGoldG6" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fde047"/>
+                    <stop offset="50%" stop-color="#eab308"/>
+                    <stop offset="100%" stop-color="#ca8a04"/>
+                  </linearGradient>
+                  <pattern id="mJerseyP6" width="28" height="10" patternUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                    <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+                  </pattern>
+                  <clipPath id="mJerseyClip6">
+                    <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+                  </clipPath>
+                </defs>
+
+                <g class="soundwave-rings">
+                  <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                  <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+                  <ellipse cx="120" cy="180" rx="125" ry="190" fill="none" stroke="rgba(251, 191, 36, 0.3)" stroke-width="1.5" class="sw-ring sw-3"/>
+                </g>
+
+                <!-- Legs & Boots -->
+                <g class="messi-lower-body">
+                  <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                  <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                  <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+                  <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+                  <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldG6)" stroke="#854d0e" stroke-width="1.5"/>
+                  <path d="M 96 324 L 99 334 M 101 324 L 104 334 M 106 324 L 109 334" stroke="#ffffff" stroke-width="1.2"/>
+
+                  <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                  <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                  <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+                  <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+                  <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldG6)" stroke="#854d0e" stroke-width="1.5"/>
+                  <path d="M 142 324 L 145 334 M 147 324 L 150 334 M 152 324 L 155 334" stroke="#ffffff" stroke-width="1.2"/>
+
+                  <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+                  <path d="M 76 218 L 79 262 M 164 218 L 161 262" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+                </g>
+
+                <!-- Torso & Jersey -->
+                <g class="messi-torso">
+                  <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyP6)" clip-path="url(#mJerseyClip6)"/>
+                  <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                  <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+                  <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+                  <g transform="translate(95, 153) scale(0.7)">
+                    <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                    <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+                  </g>
+                  <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+                </g>
+
+                <!-- Right Arm -->
+                <g class="messi-arm-right">
+                  <path d="M 166 137 L 188 150 L 180 172 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                  <path d="M 180 170 L 188 215 C 188 223 178 223 174 215 L 166 170 Z" fill="url(#mSkinG6)"/>
+                  <circle cx="182" cy="220" r="8.5" fill="url(#mSkinG6)"/>
+                </g>
+
+                <!-- Left Arm with Golden Captain Armband "C" & Heart Gesture -->
+                <g class="messi-arm-left">
+                  <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                  <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldG6)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+                  <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+                  <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinG6)"/>
+                  <circle cx="62" cy="220" r="8.5" fill="url(#mSkinG6)"/>
+                </g>
+
+                <!-- Head & Speaking Mouth Assembly -->
+                <g class="messi-head-group">
+                  <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinG6)"/>
+                  <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG6)"/>
+                  <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinG6)"/>
+                  <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinG6)" stroke="#c28c62" stroke-width="1"/>
+
+                  <g class="messi-beard-group">
+                    <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardG6)"/>
+                    <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardG6)"/>
+                    <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardG6)"/>
+                  </g>
+
+                  <g class="messi-eyes-group">
+                    <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                    <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                    <g class="messi-eye left">
+                      <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                      <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                      <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                    </g>
+                    <g class="messi-eye right">
+                      <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                      <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                      <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                    </g>
+                  </g>
+
+                  <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+
+                  <!-- THE DYNAMIC SPEAKING MOUTH -->
+                  <g class="messi-mouth-assembly">
+                    <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                    <g class="mouth-speaking">
+                      <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                      <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                      <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                      <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                    </g>
+                  </g>
+
+                  <g class="messi-hair-group">
+                    <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                    <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                    <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairG6)"/>
+                    <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                    <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+                  </g>
+                </g>
               </svg>
             </div>
+            
+            <div class="voice-equalizer" id="messiVoiceEqualizer">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+            <div class="messi-badge-status" style="position: static; margin-top: 10px;">
+              🇦🇷 LIONEL MESSI #10 &bull; CAPTAIN &amp; BROTHER
+            </div>
           </div>
+
+          <!-- Right: Active Subtitle Cinema Box Only (Clean & Focused) -->
+          <div class="promise-stage-right">
+            <div class="promise-active-subtitle-box" id="promiseActiveSubtitleBox">
+              <div class="subtitle-box-header">
+                <div class="sub-wave-dot"></div>
+                <span>ENGLISH SUBTITLES (MESSI IS SPEAKING)</span>
+                <span class="sub-counter-badge" id="subCounterBadge">PROMISE 1 OF 8</span>
+              </div>
+              <div class="active-sub-text-en" id="activeSubTextEn">
+                Sabari Krishna…
+              </div>
+              <div class="active-sub-text-es" id="activeSubTextEs">
+                "Sabari Krishna…"
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Return of Stadium Lights & Friendly Hug -->
+      <div class="stadium-return-overlay" id="stadiumReturnStage" style="display: none;">
+        
+        <div class="giant-sabari-screen">
+          <div class="giant-screen-title">SABARI KRISHNA</div>
+          <div class="giant-screen-sub">LUSAIL STADIUM HONOURS OUR CHAMPION &bull; 80,000 VOICES ROARING</div>
+        </div>
+
+        <div class="friendly-hug-stage embraced" id="friendlyHugStage" style="display: flex; align-items: flex-end; justify-content: center; gap: 28px;">
+          <div class="hug-hearts-sparkle">💙✨</div>
           
-          <h1 class="final-quote-body mt-3">YOU'VE GOT PEOPLE CHEERING FOR YOU.</h1>
-          <p class="final-quote-always">Always.</p>
+          <!-- Standing Lionel Messi Cutout in Brotherhood -->
+          <div class="messi-avatar-box" style="width: 175px; height: 265px;">
+            <div class="messi-aura-glow"></div>
+            <svg class="messi-cutout-svg hero-cutout" id="hugMessiCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="mSkinGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fedbb5"/>
+                  <stop offset="100%" stop-color="#e8b087"/>
+                </linearGradient>
+                <linearGradient id="mHairGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#5a381e"/>
+                  <stop offset="50%" stop-color="#3d2312"/>
+                  <stop offset="100%" stop-color="#2a160a"/>
+                </linearGradient>
+                <linearGradient id="mBeardGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#6e4222"/>
+                  <stop offset="100%" stop-color="#4a2810"/>
+                </linearGradient>
+                <linearGradient id="mGoldGHug" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fde047"/>
+                  <stop offset="50%" stop-color="#eab308"/>
+                  <stop offset="100%" stop-color="#ca8a04"/>
+                </linearGradient>
+                <pattern id="mJerseyPHug" width="28" height="10" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                  <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+                </pattern>
+                <clipPath id="mJerseyClipHug">
+                  <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+                </clipPath>
+              </defs>
 
-          <div class="closing-smile-card mt-3">
-            <p>Now go smile 😂<br><strong>AND PLEASE EAT SOMETHING.</strong></p>
+              <g class="soundwave-rings">
+                <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+              </g>
+
+              <!-- Legs & Boots -->
+              <g class="messi-lower-body">
+                <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+                <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+                <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldGHug)" stroke="#854d0e" stroke-width="1.5"/>
+                <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+                <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+                <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldGHug)" stroke="#854d0e" stroke-width="1.5"/>
+                <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+                <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+              </g>
+
+              <!-- Torso & Jersey -->
+              <g class="messi-torso">
+                <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyPHug)" clip-path="url(#mJerseyClipHug)"/>
+                <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+                <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+                <g transform="translate(95, 153) scale(0.7)">
+                  <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                  <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+                </g>
+                <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+              </g>
+
+              <!-- Right Arm embracing towards Sabari -->
+              <g class="messi-arm-right" transform="rotate(-15, 166, 137)">
+                <path d="M 166 137 L 195 145 L 188 167 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                <path d="M 188 165 L 210 205 C 214 212 204 216 198 208 L 176 168 Z" fill="url(#mSkinGHug)"/>
+                <circle cx="204" cy="210" r="8.5" fill="url(#mSkinGHug)"/>
+              </g>
+
+              <!-- Left Arm with Golden Captain Armband "C" -->
+              <g class="messi-arm-left">
+                <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldGHug)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+                <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+                <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinGHug)"/>
+                <circle cx="62" cy="220" r="8.5" fill="url(#mSkinGHug)"/>
+              </g>
+
+              <!-- Head & Speaking Mouth Assembly -->
+              <g class="messi-head-group">
+                <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinGHug)"/>
+                <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinGHug)"/>
+                <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinGHug)"/>
+                <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinGHug)" stroke="#c28c62" stroke-width="1"/>
+                <g class="messi-beard-group">
+                  <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardGHug)"/>
+                  <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardGHug)"/>
+                  <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardGHug)"/>
+                </g>
+                <g class="messi-eyes-group">
+                  <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                  <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                  <g class="messi-eye left">
+                    <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                    <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                    <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <g class="messi-eye right">
+                    <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                    <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                    <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                </g>
+                <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+                <!-- THE DYNAMIC SPEAKING MOUTH -->
+                <g class="messi-mouth-assembly">
+                  <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                  <g class="mouth-speaking">
+                    <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                    <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                    <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                    <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  </g>
+                </g>
+                <g class="messi-hair-group">
+                  <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                  <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                  <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairGHug)"/>
+                  <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                  <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+                </g>
+              </g>
+            </svg>
+            <div class="voice-equalizer" id="hugEqualizer">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
           </div>
 
-          <div class="mt-4">
-            <button id="btnFinalVamosKick" class="sticker-btn huge-vamos-sticker">
-              VAMOSSSSS ⚽🐐
+          <!-- Sabari Beside Messi in Brotherhood (Modeled after User Photo) -->
+          <div class="sabari-avatar-box" style="width: 175px; height: 265px;">
+            <div class="sabari-aura-glow"></div>
+            <svg class="sabari-cutout-svg hero-cutout" id="hugSabariCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sSkinGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fae0cc"/>
+                  <stop offset="35%" stop-color="#e8b189"/>
+                  <stop offset="80%" stop-color="#c98759"/>
+                  <stop offset="100%" stop-color="#a86e44"/>
+                </linearGradient>
+                <linearGradient id="sHairGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2a231f"/>
+                  <stop offset="60%" stop-color="#14110f"/>
+                  <stop offset="100%" stop-color="#080706"/>
+                </linearGradient>
+                <linearGradient id="sPoloGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="60%" stop-color="#f8fafc"/>
+                  <stop offset="100%" stop-color="#e2e8f0"/>
+                </linearGradient>
+                <linearGradient id="sJeansGHug" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#334155"/>
+                  <stop offset="50%" stop-color="#1e293b"/>
+                  <stop offset="100%" stop-color="#0f172a"/>
+                </linearGradient>
+                <clipPath id="sShirtClipHug">
+                  <path d="M 72 134 C 72 134 94 128 120 128 C 146 128 168 134 168 134 L 166 222 L 74 222 Z"/>
+                </clipPath>
+              </defs>
+
+              <!-- Soundwave rings in Indian Tricolor -->
+              <g class="soundwave-rings">
+                <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(255, 153, 51, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(19, 136, 8, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+              </g>
+
+              <!-- Legs & Dark Denim Jeans -->
+              <g class="sabari-lower-body">
+                <!-- Left Leg -->
+                <rect x="86" y="255" width="24" height="72" rx="4" fill="url(#sJeansGHug)"/>
+                <path d="M 86 265 L 110 265" stroke="#475569" stroke-width="1.2"/>
+                <!-- Left Sneaker -->
+                <path d="M 78 325 L 112 325 Q 116 333 110 338 L 74 338 Q 72 333 78 325 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+                <path d="M 76 335 L 112 335" stroke="#2563eb" stroke-width="2"/>
+
+                <!-- Right Leg -->
+                <rect x="130" y="255" width="24" height="72" rx="4" fill="url(#sJeansGHug)"/>
+                <path d="M 130 265 L 154 265" stroke="#475569" stroke-width="1.2"/>
+                <!-- Right Sneaker -->
+                <path d="M 128 325 L 162 325 Q 166 333 162 338 L 126 338 Q 124 333 128 325 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+                <path d="M 126 335 L 162 335" stroke="#2563eb" stroke-width="2"/>
+
+                <!-- Jeans Waistband -->
+                <path d="M 72 216 L 168 216 L 164 262 L 126 262 L 120 232 L 114 262 L 76 262 Z" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/>
+                <!-- Belt & Buckle -->
+                <rect x="74" y="217" width="92" height="6" fill="#0f172a"/>
+                <rect x="115" y="217" width="10" height="7" rx="1.5" fill="#facc15" stroke="#78350f" stroke-width="0.8"/>
+              </g>
+
+              <!-- Torso & WorldSkills TN Skills Polo Shirt with Tricolor Sash -->
+              <g class="sabari-torso">
+                <rect x="70" y="126" width="100" height="96" fill="url(#sPoloGHug)" clip-path="url(#sShirtClipHug)"/>
+                <path d="M 72 134 C 72 134 94 128 120 128 C 146 128 168 134 168 134 L 166 222 L 74 222 Z" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+
+                <!-- Indian Tricolor Stripes on Right Shoulder (Viewer's Left) -->
+                <path d="M 72 134 L 92 130 L 93 144 L 73 147 Z" fill="#ff9933"/>
+                <path d="M 73 147 L 93 144 L 94 150 L 74 153 Z" fill="#ffffff"/>
+                <path d="M 74 153 L 94 150 L 95 158 L 75 161 Z" fill="#138808"/>
+
+                <!-- Dynamic Sweeping Indian Tricolor Ribbon across Lower Torso / Waist -->
+                <path d="M 166 215 Q 140 185 105 198 Q 80 208 74 220 L 74 222 L 166 222 Z" fill="#138808" opacity="0.9"/>
+                <path d="M 166 208 Q 140 178 105 191 Q 82 201 74 213 L 74 216 Q 84 204 105 194 Q 140 181 166 211 Z" fill="#ffffff" opacity="0.95"/>
+                <path d="M 166 201 Q 140 171 105 184 Q 85 194 74 206 L 74 210 Q 86 198 105 188 Q 140 175 166 205 Z" fill="#ff9933" opacity="0.95"/>
+
+                <!-- TN Skills Official Emblem on Left Chest (Viewer's Right) -->
+                <g transform="translate(138, 146) scale(0.65)">
+                  <!-- Multi-color swooshes -->
+                  <path d="M 6 0 Q 12 6 12 14" stroke="#ff9933" stroke-width="2" fill="none"/>
+                  <path d="M 10 0 Q 16 6 16 14" stroke="#2563eb" stroke-width="2" fill="none"/>
+                  <path d="M 14 0 Q 20 6 20 14" stroke="#138808" stroke-width="2" fill="none"/>
+                  <path d="M 18 0 Q 24 6 24 14" stroke="#facc15" stroke-width="2" fill="none"/>
+                  <text x="0" y="24" font-family="'Outfit', sans-serif" font-weight="900" font-size="9" fill="#1e293b">TN skills</text>
+                </g>
+
+                <!-- Open V-Collar Lapels -->
+                <path d="M 104 128 L 120 152 L 136 128" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                <path d="M 100 128 L 114 146 L 120 134 L 126 146 L 140 128 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              </g>
+
+              <!-- Proud Crossed Arms (Iconic Pose from Real Photo) -->
+              <g class="sabari-crossed-arms">
+                <!-- Right Arm folding across midriff -->
+                <path d="M 72 138 L 54 154 L 62 178 L 78 168 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 62 176 L 90 206 L 152 206 L 158 190 L 96 190 L 76 168 Z" fill="url(#sSkinGHug)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Left Arm crossing in front with Black Smartwatch -->
+                <path d="M 168 138 L 186 154 L 178 178 L 162 168 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 178 176 L 150 206 L 86 206 L 80 190 L 144 190 L 164 168 Z" fill="url(#sSkinGHug)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Left Hand resting on Right Arm -->
+                <path d="M 80 190 C 74 190 74 204 80 206 L 92 206 C 96 204 96 192 92 190 Z" fill="url(#sSkinGHug)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Black Smartwatch on Left Wrist (from Real Photo) -->
+                <rect x="142" y="186" width="14" height="18" rx="3" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+                <circle cx="149" cy="195" r="5" fill="#020617"/>
+                <circle cx="149" cy="195" r="3.5" fill="#0284c7" opacity="0.8"/>
+              </g>
+
+              <!-- Head, Face & Warm Smile with Teeth (Faithful to Real Photo) -->
+              <g class="sabari-head-group">
+                <!-- Neck -->
+                <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#sSkinGHug)"/>
+                <!-- Ears -->
+                <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#sSkinGHug)"/>
+                <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#sSkinGHug)"/>
+
+                <!-- Head Contour (Defined South Asian Jawline) -->
+                <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#sSkinGHug)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Friendly Natural Eyebrows -->
+                <path d="M 91 66 Q 102 61 113 65" stroke="#1c1917" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M 127 65 Q 138 61 149 66" stroke="#1c1917" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Almond Warm Brown Eyes with Smiling Crinkle -->
+                <g class="sabari-eyes">
+                  <g class="eye left">
+                    <ellipse cx="103" cy="74" rx="6.2" ry="5.2" fill="#ffffff"/>
+                    <circle cx="103" cy="74" r="3.7" fill="#2d1a0e"/>
+                    <circle cx="102" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <g class="eye right">
+                    <ellipse cx="137" cy="74" rx="6.2" ry="5.2" fill="#ffffff"/>
+                    <circle cx="137" cy="74" r="3.7" fill="#2d1a0e"/>
+                    <circle cx="136" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <!-- Smiling eye crinkles -->
+                  <path d="M 95 77 Q 103 80 111 77" fill="none" stroke="#b5754d" stroke-width="1.2" opacity="0.6"/>
+                  <path d="M 129 77 Q 137 80 145 77" fill="none" stroke="#b5754d" stroke-width="1.2" opacity="0.6"/>
+                </g>
+
+                <!-- Natural Nose -->
+                <path d="M 120 72 L 118 87 Q 120 90 123 88" fill="none" stroke="#a3653d" stroke-width="2" stroke-linecap="round"/>
+
+                <!-- Youthful Stubble / Mustache Shadow (from Real Photo) -->
+                <path d="M 110 97 Q 120 95 130 97" stroke="#33241b" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+                <ellipse cx="120" cy="116" rx="6" ry="2" fill="#33241b" opacity="0.25"/>
+
+                <!-- Radiant Broad Smile Showing Clean White Upper Teeth -->
+                <g class="sabari-smile-group">
+                  <path d="M 108 103 Q 120 119 132 103 Z" fill="#881337" stroke="#4c0519" stroke-width="1.2"/>
+                  <!-- Clean White Upper Teeth Row -->
+                  <path d="M 110 103 Q 120 105 130 103 L 129 108 Q 120 111 111 108 Z" fill="#ffffff"/>
+                  <ellipse cx="120" cy="113" rx="5" ry="3" fill="#f43f5e" opacity="0.85"/>
+                  <path d="M 106 102 Q 120 104 134 102" fill="none" stroke="#881337" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+
+                <!-- Signature Thick Wavy Black Hair (Faithful to Real Photo) -->
+                <g class="sabari-wavy-hair">
+                  <path d="M 77 80 C 77 56 84 46 92 40 L 92 64 Z" fill="#1c1613" opacity="0.75"/>
+                  <path d="M 163 80 C 163 56 156 46 148 40 L 148 64 Z" fill="#1c1613" opacity="0.75"/>
+                  <!-- Main Wavy Pompadour & Swept Volume -->
+                  <path d="M 76 52 C 74 24 94 12 120 12 C 146 12 166 24 164 52 C 158 42 146 34 120 34 C 94 34 82 42 76 52 Z" fill="url(#sHairGHug)"/>
+                  <!-- Wavy Strands & Natural Waves -->
+                  <path d="M 88 38 C 98 16 122 14 136 24 C 130 22 116 20 104 28 Z" fill="#3b312b"/>
+                  <path d="M 110 24 C 122 10 144 14 150 26 C 140 22 126 20 118 28 Z" fill="#4a3e37"/>
+                  <path d="M 80 48 Q 92 34 108 42" fill="none" stroke="#2a231f" stroke-width="2.5"/>
+                  <path d="M 132 38 Q 146 32 158 48" fill="none" stroke="#2a231f" stroke-width="2.5"/>
+                </g>
+              </g>
+            </svg>
+            <div class="messi-badge-status" style="position: static; margin-top: 10px; background: linear-gradient(135deg, #f97316, #16a34a);">
+              🇮🇳 SABARI KRISHNA &bull; WORLDSKILLS CHAMPION 🥇
+            </div>
+          </div>
+        </div>
+
+        <div class="dialogue-card">
+          <div class="dialogue-speaker">
+            <div class="speaker-tag">
+              <span class="speaker-badge-flag"></span>
+              <span>LIONEL MESSI (A BROTHER'S HUG)</span>
+            </div>
+            <span style="font-size: 11px; color: var(--gold-primary); font-weight: 700;">ETERNAL PROMISE</span>
+          </div>
+
+          <div class="dialogue-text-wrapper">
+            <div class="dialogue-subtitle-en" style="font-size: 21px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">"Keep moving forward, champion! See you soon, Sabari!"</div>
+            <div class="dialogue-text-es" style="font-size: 15px; color: var(--gold-primary); font-style: italic;">"¡Seguí adelante, campeón! ¡Nos vemos pronto, Sabari!"</div>
+          </div>
+
+          <div class="dialogue-options" style="justify-content: center;">
+            <button type="button" class="dialogue-btn primary" id="goToFinalScreenBtn">
+              ENTER ETERNAL GLORY 🏆
             </button>
           </div>
         </div>
 
-        <!-- Grand Celebration Overlay Revealed on Kick -->
-        <div id="finalCelebrationOverlay" class="celebration-screen hidden">
-          <div class="celebration-badge">MISSION ACCOMPLISHED 🏆</div>
-          <h1 class="celebration-main-title">MAKE SABARI SMILE: ✅</h1>
-          <p class="celebration-sub">Hopefully 😂</p>
+      </div>
 
-          <div class="celebration-shout mt-3">VAMOSSSSSSS ⚽🐐</div>
+    </section>
 
-          <div class="final-reset-bar mt-4">
-            <button id="btnRestartStory" class="sticker-btn restart-sticker">
-              ↺ watch again from the beginning
-            </button>
+    <!-- =========================================================
+         SCENE 7: THE FINAL SCREEN (UNTIL WE MEET, CHAMPION)
+         ========================================================= -->
+    <section class="scene" id="scene-finalscreen" aria-label="Scene 7: Final Screen">
+      <div class="final-screen-card" id="finalScreenCard">
+        <div style="font-size: 58px; filter: drop-shadow(0 0 25px var(--gold-glow));">🏆</div>
+        
+        <h2 class="final-screen-title">SABARI KRISHNA</h2>
+        <div class="final-screen-sub">NATIONAL WINNER. ALWAYS A CHAMPION.</div>
+        <p class="final-screen-farewell">UNTIL WE MEET, CHAMPION. 💙</p>
+
+        <div class="final-screen-celebration">
+          <!-- Sabari Krishna Animated Cutout (Modeled faithfully after User Photo) -->
+          <div class="sabari-avatar-box" style="width: 210px; height: 320px;">
+            <div class="sabari-aura-glow"></div>
+            <svg class="sabari-cutout-svg hero-cutout" id="finalSabariCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sSkinGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fae0cc"/>
+                  <stop offset="35%" stop-color="#e8b189"/>
+                  <stop offset="80%" stop-color="#c98759"/>
+                  <stop offset="100%" stop-color="#a86e44"/>
+                </linearGradient>
+                <linearGradient id="sHairGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2a231f"/>
+                  <stop offset="60%" stop-color="#14110f"/>
+                  <stop offset="100%" stop-color="#080706"/>
+                </linearGradient>
+                <linearGradient id="sPoloGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="60%" stop-color="#f8fafc"/>
+                  <stop offset="100%" stop-color="#e2e8f0"/>
+                </linearGradient>
+                <linearGradient id="sJeansGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#334155"/>
+                  <stop offset="50%" stop-color="#1e293b"/>
+                  <stop offset="100%" stop-color="#0f172a"/>
+                </linearGradient>
+                <clipPath id="sShirtClipFin">
+                  <path d="M 72 134 C 72 134 94 128 120 128 C 146 128 168 134 168 134 L 166 222 L 74 222 Z"/>
+                </clipPath>
+              </defs>
+
+              <!-- Indian Tricolor Glow Rings -->
+              <g class="soundwave-rings">
+                <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(255, 153, 51, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(19, 136, 8, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+              </g>
+
+              <!-- Legs & Dark Denim Jeans -->
+              <g class="sabari-lower-body">
+                <rect x="86" y="255" width="24" height="72" rx="4" fill="url(#sJeansGFin)"/>
+                <path d="M 86 265 L 110 265" stroke="#475569" stroke-width="1.2"/>
+                <!-- Left Sneaker -->
+                <path d="M 78 325 L 112 325 Q 116 333 110 338 L 74 338 Q 72 333 78 325 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+                <path d="M 76 335 L 112 335" stroke="#2563eb" stroke-width="2"/>
+
+                <rect x="130" y="255" width="24" height="72" rx="4" fill="url(#sJeansGFin)"/>
+                <path d="M 130 265 L 154 265" stroke="#475569" stroke-width="1.2"/>
+                <!-- Right Sneaker -->
+                <path d="M 128 325 L 162 325 Q 166 333 162 338 L 126 338 Q 124 333 128 325 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+                <path d="M 126 335 L 162 335" stroke="#2563eb" stroke-width="2"/>
+
+                <!-- Jeans Waistband & Belt -->
+                <path d="M 72 216 L 168 216 L 164 262 L 126 262 L 120 232 L 114 262 L 76 262 Z" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/>
+                <rect x="74" y="217" width="92" height="6" fill="#0f172a"/>
+                <rect x="115" y="217" width="10" height="7" rx="1.5" fill="#facc15" stroke="#78350f" stroke-width="0.8"/>
+              </g>
+
+              <!-- Torso & WorldSkills TN Skills Polo Shirt with Tricolor Sash -->
+              <g class="sabari-torso">
+                <rect x="70" y="126" width="100" height="96" fill="url(#sPoloGFin)" clip-path="url(#sShirtClipFin)"/>
+                <path d="M 72 134 C 72 134 94 128 120 128 C 146 128 168 134 168 134 L 166 222 L 74 222 Z" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+
+                <!-- Indian Tricolor Stripes on Right Shoulder (Viewer's Left) -->
+                <path d="M 72 134 L 92 130 L 93 144 L 73 147 Z" fill="#ff9933"/>
+                <path d="M 73 147 L 93 144 L 94 150 L 74 153 Z" fill="#ffffff"/>
+                <path d="M 74 153 L 94 150 L 95 158 L 75 161 Z" fill="#138808"/>
+
+                <!-- Dynamic Sweeping Indian Tricolor Ribbon across Lower Torso / Waist -->
+                <path d="M 166 215 Q 140 185 105 198 Q 80 208 74 220 L 74 222 L 166 222 Z" fill="#138808" opacity="0.9"/>
+                <path d="M 166 208 Q 140 178 105 191 Q 82 201 74 213 L 74 216 Q 84 204 105 194 Q 140 181 166 211 Z" fill="#ffffff" opacity="0.95"/>
+                <path d="M 166 201 Q 140 171 105 184 Q 85 194 74 206 L 74 210 Q 86 198 105 188 Q 140 175 166 205 Z" fill="#ff9933" opacity="0.95"/>
+
+                <!-- TN Skills Official Emblem on Left Chest (Viewer's Right) -->
+                <g transform="translate(138, 146) scale(0.65)">
+                  <path d="M 6 0 Q 12 6 12 14" stroke="#ff9933" stroke-width="2" fill="none"/>
+                  <path d="M 10 0 Q 16 6 16 14" stroke="#2563eb" stroke-width="2" fill="none"/>
+                  <path d="M 14 0 Q 20 6 20 14" stroke="#138808" stroke-width="2" fill="none"/>
+                  <path d="M 18 0 Q 24 6 24 14" stroke="#facc15" stroke-width="2" fill="none"/>
+                  <text x="0" y="24" font-family="'Outfit', sans-serif" font-weight="900" font-size="9" fill="#1e293b">TN skills</text>
+                </g>
+
+                <!-- Open V-Collar Lapels -->
+                <path d="M 104 128 L 120 152 L 136 128" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                <path d="M 100 128 L 114 146 L 120 134 L 126 146 L 140 128 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              </g>
+
+              <!-- Proud Crossed Arms (Iconic Pose from Real Photo) -->
+              <g class="sabari-crossed-arms">
+                <!-- Right Arm folding across midriff -->
+                <path d="M 72 138 L 54 154 L 62 178 L 78 168 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 62 176 L 90 206 L 152 206 L 158 190 L 96 190 L 76 168 Z" fill="url(#sSkinGFin)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Left Arm crossing in front with Black Smartwatch -->
+                <path d="M 168 138 L 186 154 L 178 178 L 162 168 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                <path d="M 178 176 L 150 206 L 86 206 L 80 190 L 144 190 L 164 168 Z" fill="url(#sSkinGFin)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Left Hand resting on Right Arm -->
+                <path d="M 80 190 C 74 190 74 204 80 206 L 92 206 C 96 204 96 192 92 190 Z" fill="url(#sSkinGFin)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Black Smartwatch on Left Wrist (from Real Photo) -->
+                <rect x="142" y="186" width="14" height="18" rx="3" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+                <circle cx="149" cy="195" r="5" fill="#020617"/>
+                <circle cx="149" cy="195" r="3.5" fill="#0284c7" opacity="0.8"/>
+              </g>
+
+              <!-- Head, Face & Warm Smile with Teeth (Faithful to Real Photo) -->
+              <g class="sabari-head-group">
+                <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#sSkinGFin)"/>
+                <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#sSkinGFin)"/>
+                <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#sSkinGFin)"/>
+
+                <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#sSkinGFin)" stroke="#b5754d" stroke-width="1"/>
+
+                <!-- Natural Eyebrows -->
+                <path d="M 91 66 Q 102 61 113 65" stroke="#1c1917" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                <path d="M 127 65 Q 138 61 149 66" stroke="#1c1917" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Almond Eyes with Proud Catchlights -->
+                <g class="sabari-eyes">
+                  <g class="eye left">
+                    <ellipse cx="103" cy="74" rx="6.2" ry="5.2" fill="#ffffff"/>
+                    <circle cx="103" cy="74" r="3.7" fill="#2d1a0e"/>
+                    <circle cx="102" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <g class="eye right">
+                    <ellipse cx="137" cy="74" rx="6.2" ry="5.2" fill="#ffffff"/>
+                    <circle cx="137" cy="74" r="3.7" fill="#2d1a0e"/>
+                    <circle cx="136" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <path d="M 95 77 Q 103 80 111 77" fill="none" stroke="#b5754d" stroke-width="1.2" opacity="0.6"/>
+                  <path d="M 129 77 Q 137 80 145 77" fill="none" stroke="#b5754d" stroke-width="1.2" opacity="0.6"/>
+                </g>
+
+                <path d="M 120 72 L 118 87 Q 120 90 123 88" fill="none" stroke="#a3653d" stroke-width="2" stroke-linecap="round"/>
+
+                <!-- Subtle Stubble Shadow -->
+                <path d="M 110 97 Q 120 95 130 97" stroke="#33241b" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+                <ellipse cx="120" cy="116" rx="6" ry="2" fill="#33241b" opacity="0.25"/>
+
+                <!-- Radiant Broad Smile Showing Upper Teeth -->
+                <g class="sabari-smile-group">
+                  <path d="M 108 103 Q 120 119 132 103 Z" fill="#881337" stroke="#4c0519" stroke-width="1.2"/>
+                  <path d="M 110 103 Q 120 105 130 103 L 129 108 Q 120 111 111 108 Z" fill="#ffffff"/>
+                  <ellipse cx="120" cy="113" rx="5" ry="3" fill="#f43f5e" opacity="0.85"/>
+                  <path d="M 106 102 Q 120 104 134 102" fill="none" stroke="#881337" stroke-width="1.5" stroke-linecap="round"/>
+                </g>
+
+                <!-- Natural Wavy Voluminous Black Hair (from Real Photo) -->
+                <g class="sabari-wavy-hair">
+                  <path d="M 77 80 C 77 56 84 46 92 40 L 92 64 Z" fill="#1c1613" opacity="0.75"/>
+                  <path d="M 163 80 C 163 56 156 46 148 40 L 148 64 Z" fill="#1c1613" opacity="0.75"/>
+                  <path d="M 76 52 C 74 24 94 12 120 12 C 146 12 166 24 164 52 C 158 42 146 34 120 34 C 94 34 82 42 76 52 Z" fill="url(#sHairGFin)"/>
+                  <path d="M 88 38 C 98 16 122 14 136 24 C 130 22 116 20 104 28 Z" fill="#3b312b"/>
+                  <path d="M 110 24 C 122 10 144 14 150 26 C 140 22 126 20 118 28 Z" fill="#4a3e37"/>
+                  <path d="M 80 48 Q 92 34 108 42" fill="none" stroke="#2a231f" stroke-width="2.5"/>
+                  <path d="M 132 38 Q 146 32 158 48" fill="none" stroke="#2a231f" stroke-width="2.5"/>
+                </g>
+              </g>
+            </svg>
+            <div class="messi-badge-status" style="position: static; margin-top: 10px; background: linear-gradient(135deg, #f97316, #16a34a);">
+              🇮🇳 SABARI KRISHNA &bull; NATIONAL WINNER 🥇
+            </div>
           </div>
+
+          <!-- Giant World Championship Trophy Between Them -->
+          <div class="final-trophy-display" style="display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; margin-bottom: 24px;">
+            <div style="font-size: 84px; filter: drop-shadow(0 0 35px var(--gold-glow)); animation: floatTrophy 3s ease-in-out infinite;">🏆</div>
+            <div style="font-family: var(--font-heading); font-size: 13px; font-weight: 900; color: var(--gold-primary); letter-spacing: 2.5px; margin-top: 6px; text-shadow: 0 0 12px var(--gold-glow); text-transform: uppercase;">
+              LEGENDS UNITED
+            </div>
+          </div>
+
+          <!-- Standing Lionel Messi Cutout (Captain & Brother) -->
+          <div class="messi-avatar-box" style="width: 210px; height: 320px;">
+            <div class="messi-aura-glow"></div>
+            <svg class="messi-cutout-svg hero-cutout" id="finalMessiCutout" viewBox="0 0 240 360" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="mSkinGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fedbb5"/>
+                  <stop offset="100%" stop-color="#e8b087"/>
+                </linearGradient>
+                <linearGradient id="mHairGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#5a381e"/>
+                  <stop offset="50%" stop-color="#3d2312"/>
+                  <stop offset="100%" stop-color="#2a160a"/>
+                </linearGradient>
+                <linearGradient id="mBeardGFin" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#6e4222"/>
+                  <stop offset="100%" stop-color="#4a2810"/>
+                </linearGradient>
+                <linearGradient id="mGoldGFin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fde047"/>
+                  <stop offset="50%" stop-color="#eab308"/>
+                  <stop offset="100%" stop-color="#ca8a04"/>
+                </linearGradient>
+                <pattern id="mJerseyPFin" width="28" height="10" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="14" height="10" fill="#ffffff"/>
+                  <rect x="14" y="0" width="14" height="10" fill="#75aadb"/>
+                </pattern>
+                <clipPath id="mJerseyClipFin">
+                  <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z"/>
+                </clipPath>
+              </defs>
+
+              <g class="soundwave-rings">
+                <ellipse cx="120" cy="180" rx="95" ry="150" fill="none" stroke="rgba(251, 191, 36, 0.45)" stroke-width="2.5" class="sw-ring sw-1"/>
+                <ellipse cx="120" cy="180" rx="110" ry="170" fill="none" stroke="rgba(117, 170, 219, 0.4)" stroke-width="2" class="sw-ring sw-2"/>
+              </g>
+
+              <!-- Legs & Boots -->
+              <g class="messi-lower-body">
+                <rect x="88" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                <rect x="87" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                <rect x="87" y="292" width="24" height="5" fill="#75aadb"/>
+                <rect x="87" y="304" width="24" height="5" fill="#75aadb"/>
+                <path d="M 80 322 L 114 322 Q 118 330 112 336 L 76 336 Q 74 330 80 322 Z" fill="url(#mGoldGFin)" stroke="#854d0e" stroke-width="1.5"/>
+                <rect x="130" y="260" width="22" height="60" rx="4" fill="#f8cfab"/>
+                <rect x="129" y="285" width="24" height="36" rx="4" fill="#ffffff"/>
+                <rect x="129" y="292" width="24" height="5" fill="#75aadb"/>
+                <rect x="129" y="304" width="24" height="5" fill="#75aadb"/>
+                <path d="M 126 322 L 160 322 Q 166 330 164 336 L 128 336 Q 122 330 126 322 Z" fill="url(#mGoldGFin)" stroke="#854d0e" stroke-width="1.5"/>
+                <path d="M 74 216 L 166 216 L 162 265 L 126 265 L 120 232 L 114 265 L 78 265 Z" fill="#0b0f19" stroke="#1e293b" stroke-width="1.5"/>
+                <text x="86" y="254" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#fde047">10</text>
+              </g>
+
+              <!-- Torso & Jersey -->
+              <g class="messi-torso">
+                <rect x="70" y="128" width="100" height="92" fill="url(#mJerseyPFin)" clip-path="url(#mJerseyClipFin)"/>
+                <path d="M 72 136 C 72 136 94 130 120 130 C 146 130 168 136 168 136 L 166 220 L 74 220 Z" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                <path d="M 102 130 Q 120 142 138 130" fill="none" stroke="#0b0f19" stroke-width="3.5" stroke-linecap="round"/>
+                <text x="120" y="148" font-size="9" fill="#fbbf24" text-anchor="middle">⭐ ⭐ ⭐</text>
+                <g transform="translate(95, 153) scale(0.7)">
+                  <path d="M 0 0 L 16 0 L 16 12 C 16 18 8 22 8 22 C 8 22 0 18 0 12 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="1.5"/>
+                  <text x="8" y="11" font-family="'Outfit', sans-serif" font-weight="900" font-size="7" fill="#fbbf24" text-anchor="middle">AFA</text>
+                </g>
+                <text x="134" y="176" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#1e3a8a" text-anchor="middle">10</text>
+              </g>
+
+              <!-- Right Arm -->
+              <g class="messi-arm-right">
+                <path d="M 166 137 L 188 150 L 180 172 L 163 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                <path d="M 180 170 L 188 215 C 188 223 178 223 174 215 L 166 170 Z" fill="url(#mSkinGFin)"/>
+                <circle cx="182" cy="220" r="8.5" fill="url(#mSkinGFin)"/>
+              </g>
+
+              <!-- Left Arm with Golden Captain Armband "C" -->
+              <g class="messi-arm-left">
+                <path d="M 74 137 L 52 150 L 60 172 L 77 162 Z" fill="#75aadb" stroke="#1e3a8a" stroke-width="1.5"/>
+                <rect x="47" y="159" width="22" height="17" rx="3" fill="url(#mGoldGFin)" stroke="#854d0e" stroke-width="1.5" transform="rotate(-15, 58, 168)"/>
+                <text x="56" y="172" font-family="'Outfit', sans-serif" font-weight="900" font-size="11" fill="#0b0f19" text-anchor="middle" transform="rotate(-15, 58, 168)">C</text>
+                <path d="M 60 174 L 56 215 C 56 223 66 223 70 215 L 74 174 Z" fill="url(#mSkinGFin)"/>
+                <circle cx="62" cy="220" r="8.5" fill="url(#mSkinGFin)"/>
+              </g>
+
+              <!-- Head & Speaking Mouth Assembly -->
+              <g class="messi-head-group">
+                <rect x="108" y="116" width="24" height="18" rx="3" fill="url(#mSkinGFin)"/>
+                <ellipse cx="78" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinGFin)"/>
+                <ellipse cx="162" cy="88" rx="6.5" ry="9.5" fill="url(#mSkinGFin)"/>
+                <path d="M 80 82 C 78 52 90 42 120 42 C 150 42 162 52 160 82 C 160 108 148 122 120 122 C 92 122 80 108 80 82 Z" fill="url(#mSkinGFin)" stroke="#c28c62" stroke-width="1"/>
+                <g class="messi-beard-group">
+                  <path d="M 80 84 C 82 108 96 123 120 123 C 144 123 158 108 160 84 L 157 84 C 154 103 140 114 120 114 C 100 114 86 103 83 84 Z" fill="url(#mBeardGFin)"/>
+                  <path d="M 108 114 C 112 119 128 119 132 114 C 128 123 112 123 108 114 Z" fill="url(#mBeardGFin)"/>
+                  <path d="M 104 98 C 110 95 116 97 120 98 C 124 97 130 95 136 98 C 131 101 123 101 120 100 C 117 101 109 101 104 98 Z" fill="url(#mBeardGFin)"/>
+                </g>
+                <g class="messi-eyes-group">
+                  <path d="M 94 67 Q 104 63 112 66" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                  <path d="M 128 66 Q 136 63 146 67" stroke="#3d2312" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                  <g class="messi-eye left">
+                    <ellipse cx="104" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                    <circle cx="104" cy="74" r="3.6" fill="#3a200e"/>
+                    <circle cx="103" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                  <g class="messi-eye right">
+                    <ellipse cx="136" cy="74" rx="6" ry="5" fill="#ffffff"/>
+                    <circle cx="136" cy="74" r="3.6" fill="#3a200e"/>
+                    <circle cx="135" cy="73" r="1.4" fill="#ffffff"/>
+                  </g>
+                </g>
+                <path d="M 120 72 L 118 86 Q 120 89 123 87" fill="none" stroke="#b37c56" stroke-width="2" stroke-linecap="round"/>
+                <!-- THE DYNAMIC SPEAKING MOUTH -->
+                <g class="messi-mouth-assembly">
+                  <path d="M 110 105 Q 120 111 130 105" fill="none" stroke="#2b1408" stroke-width="2.5" stroke-linecap="round" class="mouth-resting"/>
+                  <g class="mouth-speaking">
+                    <ellipse cx="120" cy="107" rx="9" ry="7" fill="#5c1118" stroke="#2b1408" stroke-width="1.5" class="mouth-cavity"/>
+                    <path d="M 113 104 Q 120 107 127 104 L 126 106 Q 120 109 114 106 Z" fill="#ffffff" class="mouth-teeth"/>
+                    <ellipse cx="120" cy="111" rx="5" ry="3" fill="#e27b88" class="mouth-tongue"/>
+                    <path d="M 111 103 Q 120 105 129 103" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M 113 112 Q 120 115 127 112" fill="none" stroke="#94483a" stroke-width="1.5" stroke-linecap="round"/>
+                  </g>
+                </g>
+                <g class="messi-hair-group">
+                  <path d="M 78 80 C 78 60 82 50 88 46 L 89 64 Z" fill="#3d2312" opacity="0.6"/>
+                  <path d="M 162 80 C 162 60 158 50 152 46 L 151 64 Z" fill="#3d2312" opacity="0.6"/>
+                  <path d="M 78 52 C 76 34 94 22 120 22 C 146 22 164 34 162 52 C 158 46 148 40 120 40 C 92 40 82 46 78 52 Z" fill="url(#mHairGFin)"/>
+                  <path d="M 92 36 C 104 18 126 18 138 28 C 132 26 118 24 106 32 Z" fill="#6e4424"/>
+                  <path d="M 114 26 C 124 16 142 18 148 28 C 140 24 128 24 120 30 Z" fill="#7a4e2a"/>
+                </g>
+              </g>
+            </svg>
+            <div class="messi-badge-status" style="position: static; margin-top: 10px;">
+              🇦🇷 LIONEL MESSI #10 &bull; FOREVER PROUD
+            </div>
+          </div>
+        </div>
+
+        <!-- Replay Actions: displayed after at least 8 seconds -->
+        <div id="finalReplayActionsBox" style="display: none; margin-top: 20px; gap: 14px; flex-wrap: wrap; justify-content: center;">
+          <button type="button" class="dialogue-btn primary" id="finalScreenReplayBtn">
+            REPLAY EXPERIENCE 🔄
+          </button>
+          <button type="button" class="dialogue-btn" id="finalScreenCheerBtn">
+            CHEER FOR SABARI! 📣⚽
+          </button>
         </div>
       </div>
     </section>
 
   </main>
 
+  <!-- Photo Upload Modal -->
+  <div class="upload-modal" id="photoUploadModal" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">
+    <div class="upload-modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(251, 191, 36, 0.25); padding-bottom: 12px;">
+        <h3 id="uploadModalTitle" style="font-family: var(--font-heading); color: var(--gold-primary); font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 0;">
+          <span>📸</span> Add Photo for Sabari
+        </h3>
+        <button type="button" class="ctrl-btn" id="closeUploadModalBtn" style="font-size: 13px; padding: 6px 14px;">✕ Close</button>
+      </div>
+
+      <!-- Upload Source Switcher Tabs -->
+      <div class="upload-mode-tabs">
+        <button type="button" class="upload-tab-btn active" id="tabUploadFileBtn">📁 Device File / Paste</button>
+        <button type="button" class="upload-tab-btn" id="tabUploadUrlBtn">🔗 Image URL</button>
+        <button type="button" class="upload-tab-btn" id="tabManagePhotosBtn">🖼️ View &amp; Delete Photos (<span id="managePhotosCount">15</span>)</button>
+      </div>
+
+      <!-- Hidden Accessible Native File Input -->
+      <input type="file" id="photoFileInput" accept="image/jpeg,image/png,image/webp,image/gif" style="position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;">
+
+      <!-- File Dropzone (Native Label connected to photoFileInput) -->
+      <div id="fileUploadTabContent">
+        <label for="photoFileInput" class="upload-dropzone" id="uploadDropzone" title="Click to browse or drag and drop a photo">
+          <div style="font-size: 40px; line-height: 1;">📁</div>
+          <div style="font-size: 15px; font-weight: 700; color: #ffffff;">Click to choose photo or drag &amp; drop here</div>
+          <div style="font-size: 12px; color: var(--argentina-cyan);">Supports JPG, PNG, WEBP (or press Ctrl+V to paste)</div>
+          <span class="ctrl-btn upload-browse-chip">Select Photo from Device</span>
+        </label>
+      </div>
+
+      <!-- Image URL Tab Content -->
+      <div id="urlUploadTabContent" style="display: none; flex-direction: column; gap: 8px;">
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="photoUrlInput" class="upload-input-text" placeholder="Paste image URL (https://... or images/...)" style="flex: 1;">
+          <button type="button" class="ctrl-btn" id="loadPhotoUrlBtn" style="white-space: nowrap; border-color: var(--gold-primary); color: var(--gold-primary); font-weight: 700;">
+            Load Photo
+          </button>
+        </div>
+        <span style="font-size: 11px; color: var(--text-muted);">Paste a web link or local file path to load your image.</span>
+      </div>
+
+      <!-- Manage & Delete Existing Photos Tab Content -->
+      <div id="managePhotosTabContent" style="display: none; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; color: var(--argentina-cyan); margin-bottom: 4px;">
+          All photos currently in Sabari's slideshow. You can delete any photo or restore defaults below:
+        </div>
+        <div class="manage-photos-grid" id="managePhotosGrid">
+          <!-- Rendered dynamically via JavaScript -->
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+          <button type="button" class="ctrl-btn" id="clearAllDefaultsBtn" style="font-size: 12px; color: #f87171; border-color: rgba(248,113,113,0.5);">
+            🗑️ Delete All Given Photos
+          </button>
+          <button type="button" class="ctrl-btn" id="restoreDefaultsBtn" style="font-size: 12px; color: var(--gold-primary); border-color: rgba(251,191,36,0.4);">
+            🔄 Restore All Default Photos
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Preview Container -->
+      <div class="upload-preview-container" id="uploadPreviewContainer">
+        <img src="" alt="Upload Preview" class="upload-preview-img" id="uploadPreviewImg">
+        <div class="upload-preview-overlay">
+          <span class="upload-preview-status">✅ Photo Ready</span>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="ctrl-btn" id="changePhotoBtn" style="font-size: 12px; padding: 4px 10px; background: rgba(3,7,18,0.85);">
+              🔄 Change
+            </button>
+            <button type="button" class="ctrl-btn" id="clearPhotoBtn" style="font-size: 12px; padding: 4px 10px; background: rgba(3,7,18,0.85); color: #f87171; border-color: rgba(248,113,113,0.5);">
+              ✕ Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error / Guidance Box -->
+      <div class="upload-error-box" id="uploadErrorBox"></div>
+
+      <!-- Photo Metadata Form Inputs -->
+      <input type="text" id="photoTitleInput" class="upload-input-text" placeholder="Title or Occasion (e.g., National Finals / Golden Memory)">
+      <input type="text" id="photoMsgInput" class="upload-input-text" placeholder="Personal message for Sabari (e.g., Proud of you, Champion!)">
+      <input type="text" id="photoTagInput" class="upload-input-text" placeholder="Badge / Tag (e.g., Squad / National Winner / Family)">
+
+      <!-- Confirm Action Button -->
+      <button type="button" class="dialogue-btn primary" id="confirmPhotoUploadBtn" style="justify-content: center; font-size: 16px; width: 100%; padding: 14px 20px;">
+        ✨ ADD TO SLIDESHOW NOW
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="upload-toast" id="uploadToast">
+    <span>🎉</span>
+    <span id="toastMsg">Photo added to the slideshow!</span>
+  </div>
+
+  <!-- Load Scripts -->
+  <script src="photos-config.js"></script>
+  <script src="audio.js"></script>
   <script src="app.js"></script>
 </body>
-
 </html>

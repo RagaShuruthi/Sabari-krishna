@@ -1,1497 +1,3288 @@
-/* =========================================================
-   FOR SABARI ⚽ — ANIMATED DIGITAL STORY
-   Palette: Warm Cream (#FFF9F0), Soft Argentina Blue (#74B9E6),
-   Deep Navy (#172B4D), White (#FFFFFF), Warm Gold (#F5B041)
-   ========================================================= */
+/**
+ * ====================================================================
+ * SABARI — THE CHAMPION'S JOURNEY ⚽ • CINEMATIC STYLESHEET
+ * ====================================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Caveat:wght@600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-cream: #FFF9F0;
-  --bg-field: #E8F5E9;
-  --arg-blue: #74B9E6;
-  --arg-blue-light: #E8F4FC;
-  --navy: #172B4D;
-  --navy-muted: #4A5D78;
-  --gold: #F5B041;
-  --gold-light: #FFF8EB;
-  --white: #FFFFFF;
-  --tape-color: rgba(238, 230, 215, 0.88);
+  --bg-deep: #030712;
+  --bg-stadium: #060e22;
+  --bg-card: rgba(10, 20, 48, 0.88);
+  --bg-card-hover: rgba(18, 35, 78, 0.95);
+  --border-glass: rgba(255, 255, 255, 0.14);
+  --border-gold: rgba(251, 191, 36, 0.5);
+  
+  --blue-primary: #1d5ec9;
+  --blue-glow: rgba(29, 94, 201, 0.5);
+  --argentina-cyan: #75aadb;
+  --ronaldo-red: #ef4444;
+  --gold-glow: rgba(245, 158, 11, 0.5);
+  --gold-primary: #fbbf24;
+  --gold-dark: #d97706;
 
-  --font-round: 'Fredoka', -apple-system, sans-serif;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-gold: #fde047;
+
+  --font-main: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-game: 'Bangers', cursive;
   --font-hand: 'Caveat', cursive;
-  --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
 
-  --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Reset & Base */
-* {
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-body.animated-story-world {
-  font-family: var(--font-body);
-  background-color: var(--bg-cream);
-  color: var(--navy);
-  min-height: 100vh;
-  overflow-x: hidden;
+html, body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 25%, #081636 0%, #030712 65%, #010308 100%);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* 3D Background Canvas */
+#webgl-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ambient-lights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.spotlight-beam {
+  position: absolute;
+  top: -20%;
+  width: 320px;
+  height: 140%;
+  background: radial-gradient(ellipse at top, rgba(117, 170, 219, 0.22) 0%, rgba(29, 94, 201, 0.05) 50%, transparent 80%);
+  transform-origin: top center;
+  filter: blur(25px);
+  animation: sweepBeam 10s infinite alternate ease-in-out;
+}
+
+.spotlight-beam.left {
+  left: 8%;
+  animation-duration: 12s;
+}
+
+.spotlight-beam.right {
+  right: 8%;
+  animation-duration: 9s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes sweepBeam {
+  0% { transform: rotate(-15deg); opacity: 0.35; }
+  50% { opacity: 0.85; }
+  100% { transform: rotate(18deg); opacity: 0.45; }
+}
+
+/* TOP HUD - STRICTLY SEQUENTIAL STORY TRACKER */
+.top-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: linear-gradient(180deg, rgba(3, 7, 18, 0.95) 0%, rgba(6, 14, 34, 0.75) 80%, transparent 100%);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.hud-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ball-badge {
+  font-size: 22px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
+  animation: rotateBall 15s linear infinite;
+}
+
+@keyframes rotateBall {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hud-title-group h1 {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #ffffff, var(--argentina-cyan), var(--gold-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hud-title-group span {
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+/* Non-clickable sequential story step pill */
+.hud-story-tracker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-story-step {
+  background: rgba(10, 20, 48, 0.8);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-primary);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-story-step::before {
+  content: '★';
+  color: var(--gold-primary);
+  font-size: 12px;
+}
+
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.hud-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--argentina-cyan);
+  box-shadow: 0 0 12px var(--blue-glow);
+}
+
+/* Master Viewport */
+.experience-viewport {
   position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  padding-top: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.96);
+  z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scene.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+  z-index: 20;
+}
+
+/* LOADING SCREEN */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #0a193b 0%, #030712 90%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+
+.loader-ball-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.loader-ball {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #cbd5e1 50%, #475569 90%);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset -6px -6px 16px rgba(0, 0, 0, 0.4), 0 0 25px rgba(117, 170, 219, 0.6);
+  animation: bounceBall 1.2s infinite alternate cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+}
+
+@keyframes bounceBall {
+  0% { transform: translateY(-30px) scale(0.95, 1.05); }
+  90% { transform: translateY(18px) scale(1.05, 0.95); }
+  100% { transform: translateY(18px) scale(1.1, 0.9); }
+}
+
+.loader-shadow {
+  position: absolute;
+  bottom: -15px;
+  left: 12px;
+  width: 56px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  filter: blur(6px);
+  animation: shadowPulse 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes shadowPulse {
+  0% { transform: scale(0.6); opacity: 0.3; }
+  100% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.loading-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-align: center;
+}
+
+.loading-sub {
+  font-size: 14px;
+  color: var(--argentina-cyan);
+  letter-spacing: 1px;
+}
+
+.progress-track {
+  width: 280px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--argentina-cyan), var(--gold-primary));
+  box-shadow: 0 0 10px var(--gold-glow);
+  transition: width 0.3s ease;
+}
+
+.start-btn {
+  display: none;
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+  color: #030712;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 14px 38px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 25px var(--gold-glow);
+  transition: var(--transition-bounce);
+  animation: pulseGold 2s infinite alternate ease-in-out;
+}
+
+.start-btn:hover {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 0 40px rgba(251, 191, 36, 0.85);
+}
+
+@keyframes pulseGold {
+  0% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+  100% { box-shadow: 0 0 35px rgba(251, 191, 36, 0.85); }
+}
+
+/* ====================================================================
+   MESSI & RONALDO MASCOTS
+   ==================================================================== */
+.messi-stage-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 820px;
+  padding: 16px;
+  z-index: 15;
+}
+
+.mascot-duo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  margin-bottom: 12px;
+}
+
+.messi-avatar-box,
+.standing-messi-podium {
+  position: relative;
+  width: 220px;
+  height: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.messi-cartoon {
+  position: relative;
+  width: 160px;
+  height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: breatheMascot 4s ease-in-out infinite;
+}
+
+@keyframes breatheMascot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.messi-head {
+  position: relative;
+  width: 95px;
+  height: 100px;
+  background: #f7c99e;
+  border-radius: 46% 46% 42% 42%;
+  box-shadow: inset 0 -4px 10px rgba(184, 115, 61, 0.3), 0 8px 20px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+}
+
+.messi-hair {
+  position: absolute;
+  top: -14px;
+  width: 102px;
+  height: 48px;
+  background: #4a2c11;
+  border-radius: 50% 50% 20% 20%;
+}
+
+.messi-hair-tuft {
+  position: absolute;
+  top: -6px;
+  left: 18px;
+  width: 40px;
+  height: 22px;
+  background: #4a2c11;
+  border-radius: 50% 50% 0 0;
+  transform: rotate(-12deg);
+}
+
+.messi-beard {
+  position: absolute;
+  bottom: 0;
+  width: 78px;
+  height: 34px;
+  background: #6a401c;
+  border-radius: 0 0 34px 34px;
+}
+
+.messi-eyes {
+  position: absolute;
+  top: 38px;
+  width: 58px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.messi-eye {
+  width: 11px;
+  height: 13px;
+  background: #2b1809;
+  border-radius: 50%;
+  position: relative;
+  animation: blinkEye 4.5s infinite;
+}
+
+.messi-eye::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 3.5px;
+  height: 3.5px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+@keyframes blinkEye {
+  0%, 96%, 100% { transform: scaleY(1); }
+  98% { transform: scaleY(0.1); }
+}
+
+.messi-smile,
+.messi-mouth {
+  position: absolute;
+  bottom: 8px;
+  width: 22px;
+  height: 8px;
+  border-bottom: 3.5px solid #2b1809;
+  border-radius: 0 0 16px 16px;
+  background: transparent;
+  transition: all 0.12s ease;
+  z-index: 5;
+}
+
+/* Active speaking mouth animation when Messi talks */
+.messi-cartoon.speaking .messi-smile,
+.messi-cartoon.speaking .messi-mouth,
+.speaking .messi-smile,
+.speaking .messi-mouth {
+  animation: talkMouthSync 0.22s infinite alternate ease-in-out !important;
+}
+
+@keyframes talkMouthSync {
+  0% {
+    height: 6px;
+    width: 20px;
+    background: transparent;
+    border-bottom: 3.5px solid #2b1809;
+    border-radius: 0 0 14px 14px;
+    box-shadow: none;
+  }
+  40% {
+    height: 13px;
+    width: 22px;
+    background: #6b1414;
+    border: 2px solid #2b1809;
+    border-radius: 4px 4px 12px 12px;
+    box-shadow: inset 0 2px 0 0 #ffffff;
+  }
+  100% {
+    height: 18px;
+    width: 25px;
+    background: #7a1818;
+    border: 2px solid #2b1809;
+    border-radius: 6px 6px 14px 14px;
+    box-shadow: inset 0 3.5px 0 0 #ffffff; /* White teeth row at top! */
+  }
+}
+
+/* Head movement when speaking */
+.messi-cartoon.speaking .messi-head,
+.speaking .messi-head {
+  animation: talkHeadSync 1.2s infinite ease-in-out !important;
+}
+
+@keyframes talkHeadSync {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(-1.5deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-2px) rotate(1.5deg); }
+}
+
+/* Expressive heart gesture when speaking */
+.messi-cartoon.speaking .messi-arm.left,
+.speaking .messi-arm.left {
+  animation: gestureHeartSync 1.5s infinite ease-in-out !important;
+}
+
+@keyframes gestureHeartSync {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(50deg) translateX(4px); }
+}
+
+/* ====================================================================
+   LIONEL MESSI HIGH-DETAIL SVG CUTOUT (SPEAKING LIP-SYNC & GESTURES)
+   ==================================================================== */
+.messi-cutout-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 200px;
+  max-height: 310px;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.75));
+  transition: transform 0.3s ease;
+  overflow: visible;
+}
+
+.messi-cutout-svg.hero-cutout {
+  max-width: 240px;
+  max-height: 360px;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.25));
+}
+
+/* Mouth Resting vs Speaking */
+.messi-cutout-svg .mouth-speaking {
+  display: none;
+}
+.messi-cutout-svg .mouth-resting {
+  display: block;
+}
+
+.speaking .messi-cutout-svg .mouth-resting,
+.messi-cutout-svg.speaking .mouth-resting {
+  display: none !important;
+}
+
+.speaking .messi-cutout-svg .mouth-speaking,
+.messi-cutout-svg.speaking .mouth-speaking {
+  display: block !important;
+}
+
+/* Real-time speaking mouth cavity */
+.speaking .messi-cutout-svg .mouth-cavity,
+.messi-cutout-svg.speaking .mouth-cavity {
+  animation: svgTalkCavity 0.22s infinite alternate ease-in-out !important;
+  transform-origin: 120px 107px;
+}
+
+.speaking .messi-cutout-svg .mouth-teeth,
+.messi-cutout-svg.speaking .mouth-teeth {
+  animation: svgTalkTeeth 0.22s infinite alternate ease-in-out !important;
+  transform-origin: 120px 104px;
+}
+
+.speaking .messi-cutout-svg .mouth-tongue,
+.messi-cutout-svg.speaking .mouth-tongue {
+  animation: svgTalkTongue 0.18s infinite alternate ease-in-out !important;
+  transform-origin: 120px 111px;
+}
+
+@keyframes svgTalkCavity {
+  0% { transform: scale(0.7, 0.35); }
+  35% { transform: scale(1.15, 1.25); }
+  70% { transform: scale(0.9, 0.65); }
+  100% { transform: scale(1.2, 1.35); }
+}
+
+@keyframes svgTalkTeeth {
+  0% { transform: translateY(0) scaleY(0.7); }
+  50% { transform: translateY(-1.5px) scaleY(1.1); }
+  100% { transform: translateY(-0.5px) scaleY(1.0); }
+}
+
+@keyframes svgTalkTongue {
+  0% { transform: scale(0.7); opacity: 0.7; }
+  100% { transform: scale(1.2) translateY(-1px); opacity: 1; }
+}
+
+/* Head Nod & Arm Gesture */
+.speaking .messi-cutout-svg .messi-head-group,
+.messi-cutout-svg.speaking .messi-head-group {
+  animation: svgHeadNod 1.25s infinite ease-in-out !important;
+  transform-origin: 120px 125px;
+}
+
+@keyframes svgHeadNod {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3.5px) rotate(-1.5deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-2.5px) rotate(1.5deg); }
+}
+
+.speaking .messi-cutout-svg .messi-arm-left,
+.messi-cutout-svg.speaking .messi-arm-left {
+  animation: svgHeartGesture 1.5s infinite ease-in-out !important;
+  transform-origin: 74px 145px;
+}
+
+@keyframes svgHeartGesture {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(32deg) translate(6px, -4px); }
+}
+
+/* Soundwaves pulsing while speaking */
+.messi-cutout-svg .soundwave-rings .sw-ring {
+  opacity: 0;
+  transform-origin: 120px 180px;
+}
+
+.speaking .messi-cutout-svg .soundwave-rings .sw-1,
+.messi-cutout-svg.speaking .soundwave-rings .sw-1 {
+  animation: svgSoundwave 1.1s infinite ease-out 0s !important;
+}
+
+.speaking .messi-cutout-svg .soundwave-rings .sw-2,
+.messi-cutout-svg.speaking .soundwave-rings .sw-2 {
+  animation: svgSoundwave 1.1s infinite ease-out 0.35s !important;
+}
+
+.speaking .messi-cutout-svg .soundwave-rings .sw-3,
+.messi-cutout-svg.speaking .soundwave-rings .sw-3 {
+  animation: svgSoundwave 1.1s infinite ease-out 0.7s !important;
+}
+
+@keyframes svgSoundwave {
+  0% { opacity: 0.9; transform: scale(0.92); }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+
+.messi-body {
+  position: relative;
+  width: 86px;
+  height: 78px;
+  margin-top: -6px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ffffff,
+    #ffffff 14px,
+    var(--argentina-cyan) 14px,
+    var(--argentina-cyan) 28px
+  );
+  border-radius: 16px 16px 10px 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.messi-number {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 900;
+  color: #1e3a8a;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.messi-arm {
+  position: absolute;
+  top: 8px;
+  width: 20px;
+  height: 54px;
+  background: #f7c99e;
+  border-radius: 10px;
+}
+
+.messi-arm.left {
+  left: -14px;
+  animation: armWave 3s infinite ease-in-out;
+}
+
+.messi-arm.right {
+  right: -14px;
+  transform: rotate(-12deg);
+}
+
+@keyframes armWave {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(40deg); }
+}
+
+.messi-badge-status {
+  position: absolute;
+  bottom: -8px;
+  background: linear-gradient(135deg, #1e3a8a, var(--argentina-cyan));
+  color: #ffffff;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  white-space: nowrap;
+}
+
+/* Captain Armband on Left Arm */
+.messi-armband {
+  position: absolute;
+  top: 14px;
+  left: -14px;
+  width: 20px;
+  height: 14px;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  border-radius: 3px;
+  color: #030712;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  border: 1px solid #ffffff;
+}
+
+/* Shorts and Legs for full-body cutout */
+.messi-shorts {
+  position: relative;
+  width: 82px;
+  height: 38px;
+  background: #0f172a; /* Black Argentina shorts */
+  margin-top: -4px;
+  border-radius: 4px 4px 8px 8px;
+  border-top: 2px solid #ffffff;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+
+.messi-legs {
+  display: flex;
+  gap: 22px;
+  margin-top: -3px;
+  z-index: 1;
+}
+
+.messi-leg {
+  width: 18px;
+  height: 46px;
+  background: repeating-linear-gradient(
+    180deg,
+    #ffffff,
+    #ffffff 8px,
+    var(--argentina-cyan) 8px,
+    var(--argentina-cyan) 16px
+  ); /* Argentina striped socks */
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.messi-boot {
+  position: absolute;
+  bottom: -4px;
+  left: -2px;
+  width: 24px;
+  height: 10px;
+  background: linear-gradient(135deg, #fbbf24, #b45309); /* Golden boots! */
+  border-radius: 4px 8px 3px 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* Hero Cutout scaling */
+.messi-cartoon.hero-cutout {
+  transform: scale(1.15);
+  margin-bottom: 25px;
+}
+
+/* Ronaldo Mascot */
+.ronaldo-cartoon {
+  position: relative;
+  width: 160px;
+  height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: breatheMascot 4s ease-in-out infinite 0.5s;
+}
+
+.ronaldo-head {
+  position: relative;
+  width: 92px;
+  height: 98px;
+  background: #f5c49b;
+  border-radius: 46% 46% 40% 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+}
+
+.ronaldo-hair {
+  position: absolute;
+  top: -12px;
+  width: 96px;
+  height: 38px;
+  background: #1c1917;
+  border-radius: 40% 40% 10% 10%;
+}
+
+.ronaldo-body {
+  position: relative;
+  width: 86px;
+  height: 78px;
+  margin-top: -6px;
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+  border-radius: 16px 16px 10px 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.ronaldo-number {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ====================================================================
+   CINEMATIC BILINGUAL DIALOGUE CARD
+   ==================================================================== */
+.dialogue-card {
+  width: 100%;
+  max-width: 680px;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 22px 28px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(29, 94, 201, 0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dialogue-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--argentina-cyan), var(--gold-primary), transparent);
+}
+
+.dialogue-speaker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.speaker-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold-primary);
+}
+
+.speaker-badge-flag {
+  width: 18px;
+  height: 12px;
+  background: linear-gradient(180deg, var(--argentina-cyan) 33%, #ffffff 33%, #ffffff 66%, var(--argentina-cyan) 66%);
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.dialogue-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 60px;
+}
+
+/* English Subtitle - PRIMARY & PROMINENT */
+.dialogue-subtitle-en {
+  font-size: 21px;
+  line-height: 1.4;
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.3px;
+}
+
+/* Spoken Argentine Spanish - Secondary with Flag */
+.dialogue-text-es {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--gold-primary);
+  font-style: italic;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.dialogue-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.dialogue-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialogue-btn:hover {
+  background: linear-gradient(135deg, var(--blue-primary), #2563eb);
+  border-color: var(--argentina-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--blue-glow);
+}
+
+.dialogue-btn.primary {
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+  color: #030712;
+  border: none;
+  box-shadow: 0 6px 20px var(--gold-glow);
+}
+
+.dialogue-btn.primary:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.7);
+}
+
+/* ====================================================================
+   SCENE 2: STADIUM TUNNEL & MATCH INTRO
+   ==================================================================== */
+.match-vs-banner {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.match-vs-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #1e3a8a 0%, #dc2626 100%);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 16px;
+  border-radius: var(--radius-full);
+  letter-spacing: 1.5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 8px;
+}
+
+.match-vs-title {
+  font-family: var(--font-game);
+  font-size: 42px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--argentina-cyan) 30%, #ffffff 50%, #f87171 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.3));
+}
+
+/* ====================================================================
+   SCENE 3: PLAYABLE FOOTBALL MATCH & TACTILE CONTROLS
+   ==================================================================== */
+.match-arena-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #020617;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(29, 94, 201, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.match-arena-wrapper.vertical-pitch-mode {
+  width: min(98%, 640px);
+  max-width: 640px;
+}
+
+#scene-match {
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 54px;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.match-scoreboard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: rgba(3, 7, 18, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-glass);
+  z-index: 30;
+  gap: 6px;
+}
+
+.team-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.team-badge-group.sabari .team-name {
+  color: var(--argentina-cyan);
+}
+
+.team-badge-group.ronaldo .team-name {
+  color: #f87171;
+}
+
+.team-name {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.scoreboard-score-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  padding: 3px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-gold);
+}
+
+.match-score-num {
+  font-family: var(--font-game);
+  font-size: 24px;
+  color: var(--gold-primary);
+  line-height: 1;
+}
+
+.match-timer {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #dc2626;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+#footballPitchCanvas {
+  width: 100%;
+  height: 380px;
+  display: block;
+  background: #14532d;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.match-arena-wrapper.vertical-pitch-mode #footballPitchCanvas {
+  height: clamp(390px, 56vh, 540px);
+}
+
+/* REFINED CONTROLS INSTRUCTION BAR (WORKS FLAWLESSLY WITH VISUAL FEEDBACK) */
+.match-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 20px;
+  background: rgba(2, 6, 23, 0.96);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 30;
+}
+
+.keys-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.key-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.key-badge {
+  background: #1e293b;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+}
+
+/* Active feedback when key is pressed */
+.key-badge.pressed {
+  background: var(--gold-primary);
+  color: #030712;
+  border-color: #ffffff;
+  transform: translateY(1px);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* ====================================================================
+   UNIFIED ARCADE CONTROLS DECK (ALWAYS VISIBLE & TACTILE ON ALL DEVICES)
+   ==================================================================== */
+.orientation-toggle-btn {
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(217, 119, 6, 0.28));
+  border: 1px solid var(--gold-primary);
+  color: #fbbf24;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.orientation-toggle-btn:hover {
+  background: var(--gold-primary);
+  color: #030712;
+  box-shadow: 0 0 12px var(--gold-glow);
+  transform: translateY(-1px);
+}
+
+.arcade-controls-deck {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: rgba(3, 7, 18, 0.96);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 35;
+  padding: 8px 12px 10px 12px;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.arcade-instruction-strip {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 20px;
+  font-size: 11px;
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.arcade-instruction-strip .strip-tag {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #030712;
+  font-weight: 900;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.arcade-instruction-strip .strip-text {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.arcade-instruction-strip kbd {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 10px;
+  font-family: monospace;
+  color: #fbbf24;
+}
+
+.arcade-controls-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.arcade-center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.mobile-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 38px);
+  grid-template-rows: repeat(3, 38px);
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.dpad-btn {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition: all 0.12s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.dpad-btn:active,
+.dpad-btn.active {
+  background: var(--gold-primary);
+  color: #030712;
+  transform: scale(0.92);
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+.dpad-center-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
   user-select: none;
 }
 
-/* Fullscreen Physics & FX Canvas */
-#cinemaCanvas {
+.arcade-center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.whistle-mini-btn {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 16px;
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.whistle-mini-btn:hover {
+  background: rgba(220, 38, 38, 0.4);
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.arcade-keyboard-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.arcade-badge {
+  background: #1e293b;
+  color: #94a3b8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.arcade-badge.pressed {
+  background: var(--gold-primary);
+  color: #030712;
+  transform: translateY(1px);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.mobile-action-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mob-act-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: all 0.12s ease;
+}
+
+.mob-act-btn .btn-emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.mob-act-btn .btn-title {
+  font-family: var(--font-heading);
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.mob-act-btn .btn-key {
+  font-size: 7.5px;
+  opacity: 0.8;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mob-act-btn.pass {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #030712;
+}
+
+.mob-act-btn.tackle {
+  background: linear-gradient(135deg, #0284c7, #1d4ed8);
+  color: #ffffff;
+}
+
+.mob-act-btn.shoot {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.4);
+}
+
+.mob-act-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+}
+
+.mob-act-btn:active,
+.mob-act-btn.active {
+  transform: scale(0.92);
+  filter: brightness(1.2);
+}
+
+.cinematic-moment-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: rgba(3, 7, 18, 0.95);
+  border: 2px solid var(--gold-primary);
+  border-radius: var(--radius-md);
+  padding: 16px 36px;
+  text-align: center;
+  box-shadow: 0 0 50px var(--gold-glow);
+  z-index: 50;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cinematic-moment-banner.show {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.moment-title {
+  font-family: var(--font-game);
+  font-size: 34px;
+  color: var(--gold-primary);
+  letter-spacing: 2px;
+}
+
+.moment-sub {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ====================================================================
+   SCENE 5: FULL-PAGE CINEMATIC SLIDESHOW (ALL PHOTOS IN ONE PLACE)
+   ==================================================================== */
+.slideshow-fullpage-viewport {
+  width: 100%;
+  max-width: 960px;
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 20px 20px;
+  z-index: 20;
+}
+
+.slideshow-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.slideshow-title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  background: linear-gradient(90deg, #ffffff, var(--argentina-cyan), var(--gold-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.slideshow-stage-frame {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  max-height: 480px;
+  background: #020617;
+  border: 4px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(251, 191, 36, 0.25);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slideshow-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #050a18;
+  transition: opacity 0.3s ease, transform 0.4s ease;
+}
+
+/* Floating Navigation Arrows on Sides */
+.slideshow-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  background: rgba(3, 7, 18, 0.75);
+  border: 1px solid var(--border-gold);
+  color: var(--gold-primary);
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  z-index: 30;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+.slideshow-nav-arrow:hover {
+  background: var(--gold-primary);
+  color: #030712;
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.slideshow-nav-arrow.prev { left: 18px; }
+.slideshow-nav-arrow.next { right: 18px; }
+
+/* Slideshow Bottom Overlay Caption */
+.slideshow-caption-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.92) 50%, rgba(3, 7, 18, 0.98) 100%);
+  padding: 24px 28px 16px 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  z-index: 25;
+}
+
+.slideshow-caption-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 75%;
+}
+
+.slideshow-tag-pill {
+  display: inline-block;
+  align-self: flex-start;
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--gold-primary);
+  border: 1px solid var(--gold-primary);
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.slideshow-photo-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.slideshow-photo-msg {
+  font-family: var(--font-hand);
+  font-size: 24px;
+  color: var(--argentina-cyan);
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+.slideshow-counter-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Slideshow Bottom Controls Strip */
+.slideshow-bottom-strip {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.slideshow-progress-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  max-width: 50%;
+  padding: 4px;
+}
+
+.slide-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.slide-dot.active {
+  background: var(--gold-primary);
+  box-shadow: 0 0 10px var(--gold-glow);
+  transform: scale(1.3);
+}
+
+/* ====================================================================
+   SCENE 6: FINAL ENDING — PERSONAL PROMISE (IN MESSI'S VOICE!)
+   ==================================================================== */
+.promise-blackout-screen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 30px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.2s ease, visibility 1.2s ease;
+  overflow-y: auto;
+}
+
+.promise-blackout-screen.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.promise-voice-active-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--gold-primary);
+  padding: 8px 24px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold-primary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.25);
+}
+
+.voice-wave-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  box-shadow: 0 0 10px var(--gold-primary);
+  animation: pulseGold 1s infinite alternate;
+}
+
+/* Scene 6 Main Dual-Stage Layout */
+.promise-blackout-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  max-width: 880px;
+  width: 100%;
+  margin: auto 0;
+}
+
+.promise-messi-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.promise-messi-animated-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  width: 240px;
+  height: 360px;
+}
+
+.messi-aura-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(117, 170, 219, 0.25) 50%, rgba(0, 0, 0, 0) 75%);
+  filter: blur(28px);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulseAura 2.4s infinite alternate ease-in-out;
+}
+
+@keyframes pulseAura {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.98; }
+}
+
+/* Dancing Voice Equalizer Bars */
+.voice-equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 22px;
+  margin-top: 10px;
+  z-index: 5;
+}
+
+.eq-bar {
+  width: 4.5px;
+  height: 5px;
+  background: var(--argentina-cyan);
+  border-radius: 2px;
+  transition: height 0.15s ease;
+}
+
+.speaking .voice-equalizer .eq-bar:nth-child(1) { animation: eqDance 0.35s infinite alternate ease-in-out; }
+.speaking .voice-equalizer .eq-bar:nth-child(2) { animation: eqDance 0.42s infinite alternate ease-in-out 0.1s; }
+.speaking .voice-equalizer .eq-bar:nth-child(3) { animation: eqDance 0.38s infinite alternate ease-in-out 0.2s; }
+.speaking .voice-equalizer .eq-bar:nth-child(4) { animation: eqDance 0.46s infinite alternate ease-in-out 0.15s; }
+.speaking .voice-equalizer .eq-bar:nth-child(5) { animation: eqDance 0.32s infinite alternate ease-in-out 0.05s; }
+
+@keyframes eqDance {
+  0% { height: 5px; background: var(--argentina-cyan); }
+  100% { height: 22px; background: var(--gold-primary); box-shadow: 0 0 8px var(--gold-glow); }
+}
+
+/* Right Side: Active Subtitles & Promise Timeline */
+.promise-stage-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 720px;
+  width: 100%;
+}
+
+/* PROMINENT ACTIVE SUBTITLE HIGHLIGHT CARD (CLEAN & MINIMALIST) */
+.promise-active-subtitle-box {
+  width: 100%;
+  max-width: 780px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(8, 14, 28, 0.98));
+  border: 2px solid var(--gold-primary);
+  border-radius: var(--radius-lg);
+  padding: 38px 46px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9), 0 0 45px rgba(251, 191, 36, 0.3);
+  position: relative;
+  text-align: center;
+  transition: all 0.35s ease;
+}
+
+.subtitle-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--gold-primary);
+  text-transform: uppercase;
+}
+
+.sub-wave-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--gold-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--gold-primary);
+  animation: pulseGold 1s infinite alternate;
+}
+
+.sub-counter-badge {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: var(--gold-primary);
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+}
+
+.active-sub-text-en {
+  font-size: 32px;
+  line-height: 1.45;
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.9);
+  margin-bottom: 14px;
+  min-height: 85px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active-sub-text-es {
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--argentina-cyan);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 0.95;
+}
+
+/* Stadium Lights Flash & Sabari Screen Return */
+.stadium-return-overlay {
+  position: relative;
+  width: 100%;
+  max-width: 880px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 20;
+  max-height: 96vh;
+  margin: auto 0;
+}
+
+.giant-sabari-screen {
+  width: 100%;
+  background: radial-gradient(circle at center, #0e2a5c 0%, #030712 90%);
+  border: 4px solid #1e293b;
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(117, 170, 219, 0.4), inset 0 0 30px rgba(251, 191, 36, 0.2);
+}
+
+.giant-screen-title {
+  font-family: var(--font-game);
+  font-size: 38px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ffffff, var(--argentina-cyan), var(--gold-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.6));
+  animation: pulseGold 2s infinite alternate;
+}
+
+.giant-screen-sub {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--gold-primary);
+  margin-top: 2px;
+}
+
+/* Friendly Hug Animation */
+.friendly-hug-stage {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 6px;
+}
+
+.hug-hearts-sparkle {
+  position: absolute;
+  top: -15px;
+  font-size: 28px;
+  animation: floatHeart 2s infinite ease-in-out;
+}
+
+@keyframes floatHeart {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-8px) scale(1.2); opacity: 1; }
+}
+
+/* Final Screen */
+.final-screen-card {
+  width: 100%;
+  max-width: 820px;
+  background: var(--bg-card);
+  backdrop-filter: blur(25px);
+  border: 2px solid var(--gold-primary);
+  border-radius: var(--radius-lg);
+  padding: 24px 30px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px var(--gold-glow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 96vh;
+  overflow-y: auto;
+  gap: 16px;
+}
+
+.final-screen-title {
+  font-family: var(--font-game);
+  font-size: 52px;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.final-screen-sub {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--gold-primary);
+}
+
+.final-screen-farewell {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--argentina-cyan);
+  font-style: italic;
+  margin-top: 10px;
+}
+
+
+/* ====================================================================
+   PHOTO UPLOAD MODAL & TOAST NOTIFICATION
+   ==================================================================== */
+.upload-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
-  z-index: 90;
-}
-
-/* Minimal HUD (Top Corner Stickers) */
-.story-hud {
-  position: fixed;
-  top: 14px;
-  right: 18px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sound-sticker {
-  background: var(--white);
-  border: 1.5px solid rgba(23, 43, 77, 0.12);
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.06);
-  transition: transform 0.2s ease;
-}
-.sound-sticker:hover {
-  transform: scale(1.08);
-}
-
-.scene-progress {
-  font-family: var(--font-hand);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--navy-muted);
-  background: rgba(255, 255, 255, 0.6);
-  padding: 2px 10px;
-  border-radius: 12px;
-}
-
-/* Universal Speech Bubble */
-.speech-bubble {
-  position: fixed;
-  z-index: 95;
-  background: var(--white);
-  border: 2px solid var(--navy);
-  border-radius: 18px;
-  padding: 12px 20px;
-  max-width: 280px;
-  box-shadow: 0 8px 24px rgba(23, 43, 77, 0.15);
-  transform: scale(0.95);
-  animation: bubblePop 0.35s var(--ease-elastic) forwards;
-  pointer-events: none;
-}
-@keyframes bubblePop {
-  0% { transform: scale(0.4) translateY(10px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.bubble-text {
-  font-family: var(--font-hand);
-  font-size: 1.55rem;
-  font-weight: 700;
-  color: var(--navy);
-  line-height: 1.25;
-}
-
-.bubble-tail {
-  position: absolute;
-  bottom: -12px;
-  left: 28px;
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 12px solid var(--navy);
-}
-.bubble-tail::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: -8px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 10px solid var(--white);
-}
-
-/* Universal Scene Viewport & Fullscreen Transitions */
-.scene-viewport {
-  position: relative;
-  width: 100vw;
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-.full-scene {
+  background: rgba(3, 7, 18, 0.9);
+  backdrop-filter: blur(20px);
+  z-index: 99999;
   display: none;
-  width: 100vw;
-  min-height: 100vh;
-  padding: 40px 20px;
-  position: relative;
-  opacity: 0;
-  transition: opacity 0.5s var(--ease-cinematic);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.full-scene.active {
+.upload-modal.active {
+  display: flex !important;
+}
+
+.upload-modal-content {
+  background: #0b152d;
+  border: 2px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  opacity: 1;
-}
-
-.scene-inner-content {
-  width: 100%;
-  max-width: 680px;
+  gap: 14px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 40px var(--gold-glow);
   position: relative;
-  z-index: 10;
+  animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Handwritten Sticker Buttons */
-.sticker-btn {
-  background: var(--navy);
-  color: var(--white);
-  border: none;
-  font-family: var(--font-hand);
-  font-size: 1.55rem;
-  font-weight: 700;
-  padding: 12px 30px;
-  border-radius: 30px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 8px 20px rgba(23, 43, 77, 0.18);
-  transition: all 0.25s var(--ease-elastic);
-  position: relative;
+.upload-modal-content::-webkit-scrollbar {
+  width: 6px;
 }
-.sticker-btn:hover {
-  transform: scale(1.06) rotate(-1deg);
-  background: #253858;
-}
-.sticker-btn:active {
-  transform: scale(0.95);
+.upload-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(251, 191, 36, 0.4);
+  border-radius: 4px;
 }
 
-.gold-sticker {
-  background: linear-gradient(135deg, var(--gold) 0%, #E69B1E 100%);
-  color: var(--white);
-  box-shadow: 0 8px 24px rgba(245, 176, 65, 0.35);
-}
-
-.huge-vamos-sticker {
-  font-size: 2.2rem;
-  padding: 20px 50px;
-  background: linear-gradient(135deg, var(--arg-blue) 0%, #3D88C7 100%);
-  border-radius: 50px;
-  box-shadow: 0 12px 36px rgba(116, 185, 230, 0.4);
-  animation: pulseSticker 2s infinite;
-}
-@keyframes pulseSticker {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-  100% { transform: scale(1); }
-}
-
-.restart-sticker {
-  background: transparent;
-  border: 2px dashed var(--navy-muted);
-  color: var(--navy-muted);
-  font-size: 1.2rem;
-  box-shadow: none;
-}
-.restart-sticker:hover {
-  background: var(--white);
-  color: var(--navy);
-}
-
-/* ================= SCENE 1: THE EMPTY STADIUM ================= */
-.scene-stadium {
-  background: linear-gradient(180deg, #F0F7FD 0%, #E2F0D9 65%, #CBE3BD 100%);
-  overflow: hidden;
-  position: relative;
-}
-
-.stadium-sky {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 55%;
-  pointer-events: none;
-}
-
-.stadium-lights-glow {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 380px;
-  height: 120px;
-  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
-}
-
-.grass-field {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 45%;
-  background: #C4E0B2;
-  border-top: 4px solid #A9D18E;
-}
-
-.pitch-marking-circle {
-  position: absolute;
-  top: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 180px;
-  height: 180px;
-  border: 3px solid rgba(255, 255, 255, 0.45);
-  border-radius: 50%;
-}
-
-.pitch-chalk-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.45);
-}
-
-/* Animated Rolling Ball in Scene 1 */
-.animated-ball {
-  position: absolute;
-  bottom: 12%;
-  left: -80px;
-  width: 58px;
-  height: 58px;
-  z-index: 20;
-  transition: transform 0.1s linear;
-}
-
-.svg-ball {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 8px 12px rgba(23, 43, 77, 0.18));
-}
-
-/* Cartoon Messi Element */
-.cartoon-messi {
-  position: absolute;
-  bottom: 14%;
-  left: -120px;
-  width: 110px;
-  height: 146px;
-  z-index: 25;
-  cursor: pointer;
-  transition: transform 0.3s var(--ease-elastic);
-}
-
-.messi-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 10px 16px rgba(23, 43, 77, 0.2));
-}
-
-.scene-narrative-box {
-  position: relative;
-  z-index: 30;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(10px);
-  padding: 24px 32px;
-  border-radius: 24px;
-  border: 2px solid var(--navy);
-  box-shadow: 0 16px 40px rgba(23, 43, 77, 0.12);
-  max-width: 440px;
-}
-
-.handwritten-annotation {
-  font-family: var(--font-hand);
-  font-size: 2.2rem;
-  color: var(--arg-blue);
-  line-height: 1;
-}
-
-.scene-bold-text {
-  font-family: var(--font-round);
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--navy);
-  margin-top: 4px;
-}
-
-/* ================= SCENE 2: MESSI ASKS & RUNAWAY NO BUTTON ================= */
-.scene-room {
-  background: var(--bg-cream);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.messi-spotlight-actor {
-  width: 120px;
-  height: 160px;
-  margin: 0 auto;
-  animation: gentleBob 2.5s infinite ease-in-out alternate;
-}
-.messi-svg-scene2 {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 10px 18px rgba(23, 43, 77, 0.16));
-}
-
-.scene2-preface {
-  font-family: var(--font-hand);
-  font-size: 1.6rem;
-  color: var(--navy-muted);
-}
-
-.scene2-headline {
-  font-family: var(--font-round);
-  font-size: clamp(2rem, 5.5vw, 3rem);
-  font-weight: 900;
-  color: var(--navy);
-  line-height: 1.15;
-  margin-top: 4px;
-}
-
-.scene2-proud-shout {
-  font-family: var(--font-hand);
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--gold);
-}
-
-.scene2-question {
-  font-family: var(--font-round);
-  font-size: clamp(1.4rem, 4vw, 2rem);
-  font-weight: 800;
-  color: var(--navy);
-  margin-top: 12px;
-}
-
-/* Choice Arena for YES and Runaway NO */
-.choice-container-arena {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 24px;
-  position: relative;
-  min-height: 120px;
-  max-width: 500px;
-  margin: 24px auto 0;
-}
-
-.choice-yes-btn {
-  background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
-  color: #FFFFFF;
-  border: none;
-  font-family: var(--font-round);
-  font-size: 1.6rem;
-  font-weight: 900;
-  padding: 18px 48px;
-  border-radius: 40px;
-  cursor: pointer;
-  box-shadow: 0 10px 28px rgba(39, 174, 96, 0.35);
-  transition: all 0.25s var(--ease-elastic);
-  animation: pulseGreen 2s infinite;
-}
-.choice-yes-btn:hover {
-  transform: scale(1.1) translateY(-3px);
-  box-shadow: 0 14px 34px rgba(39, 174, 96, 0.5);
-}
-@keyframes pulseGreen {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-  100% { transform: scale(1); }
-}
-
-.choice-no-btn {
-  background: #E74C3C;
-  color: #FFFFFF;
-  border: none;
-  font-family: var(--font-round);
-  font-size: 1.4rem;
-  font-weight: 800;
-  padding: 16px 36px;
-  border-radius: 40px;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease;
-  user-select: none;
-  touch-action: none;
-}
-.choice-no-btn:hover {
-  background: #C0392B;
-}
-
-.dodge-funny-hint {
-  font-family: var(--font-hand);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #C0392B;
-  margin-top: 18px;
-  animation: bubblePop 0.3s var(--ease-elastic);
-}
-
-/* ================= SCENE 3: NATIONAL WINNER REVEAL ================= */
-.scene-winner-reveal {
-  background: var(--bg-cream);
-}
-
-.tiny-trophy-stage {
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.tiny-trophy-icon {
-  font-size: 3.5rem;
-  animation: floatTrophy 2s infinite ease-in-out;
-}
-@keyframes floatTrophy {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.tink-text {
-  font-family: var(--font-hand);
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--gold);
-}
-
-/* Celebratory Poster Style */
-.celebratory-poster {
-  background: var(--white);
-  border: 3px solid var(--navy);
-  border-radius: 28px;
-  padding: 38px 24px;
-  box-shadow: 0 20px 50px rgba(23, 43, 77, 0.15);
-  animation: popPoster 0.5s var(--ease-elastic);
-}
-@keyframes popPoster {
-  0% { transform: scale(0.7); opacity: 0; }
+@keyframes modalPop {
+  0% { transform: scale(0.92); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-.poster-trophy-huge {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
+.upload-mode-tabs {
+  display: flex;
+  gap: 8px;
 }
 
-.poster-stamp {
-  display: inline-block;
-  font-family: var(--font-round);
-  font-size: 0.82rem;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  color: #27AE60;
-  border: 2px solid #27AE60;
-  padding: 4px 14px;
-  border-radius: 8px;
-  transform: rotate(-3deg);
-  margin-top: 8px;
-}
-
-.poster-main-title {
-  font-family: var(--font-round);
-  font-size: clamp(2.4rem, 6.5vw, 3.8rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  color: var(--navy);
-  line-height: 1;
-  margin-top: 6px;
-}
-
-.poster-name {
-  font-family: var(--font-hand);
-  font-size: 2.5rem;
-  color: var(--arg-blue);
-}
-
-.flying-annotations-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  max-width: 480px;
-  margin: 18px auto 0;
-}
-
-.flying-tag {
-  background: var(--bg-cream);
-  border: 1px solid rgba(23, 43, 77, 0.12);
-  border-radius: 10px;
+.upload-tab-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  color: #94a3b8;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
   padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.messi-reaction-speech {
-  font-family: var(--font-hand);
-  font-size: 1.7rem;
-  color: var(--navy);
-  margin-top: 14px;
+.upload-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
-/* ================= SCENE 4: THE TROPHY PARTY ================= */
-.scene-party {
-  background: radial-gradient(circle at center, #FFFDF9 0%, #FFF5E6 100%);
+.upload-tab-btn.active {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
 }
 
-.party-streamers-art {
-  font-size: 2rem;
-  letter-spacing: 12px;
-  margin-bottom: 12px;
-}
-
-.party-trophy-bounce {
-  font-size: 5rem;
-  animation: partyBounce 1s infinite alternate var(--ease-elastic);
-}
-@keyframes partyBounce {
-  0% { transform: scale(1) rotate(-4deg); }
-  100% { transform: scale(1.18) rotate(4deg); }
-}
-
-.party-shout {
-  font-family: var(--font-round);
-  font-size: clamp(2rem, 5vw, 2.8rem);
-  font-weight: 900;
-  color: var(--navy);
-  line-height: 1.15;
-}
-
-.party-sub-lead {
-  font-family: var(--font-hand);
-  font-size: 1.8rem;
-  color: var(--navy-muted);
-}
-
-.party-actually {
-  font-family: var(--font-hand);
-  font-size: 1.7rem;
-  color: var(--gold);
-}
-
-.party-huge-deal {
-  font-family: var(--font-round);
-  font-size: clamp(2.2rem, 5.8vw, 3.2rem);
-  font-weight: 900;
-  color: var(--navy);
-}
-
-.party-proud-note {
-  font-family: var(--font-hand);
-  font-size: 2rem;
-  color: var(--arg-blue);
-  margin-top: 4px;
-}
-
-/* ================= SCENE 5: THE PHOTO WALL ================= */
-.scene-photowall {
-  background: var(--bg-cream);
-  min-height: 100vh;
-  padding: 40px 16px;
-}
-
-.wall-question {
-  font-family: var(--font-hand);
-  font-size: 2rem;
-  color: var(--gold);
-}
-
-.wall-heading {
-  font-family: var(--font-round);
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
-  font-weight: 900;
-  color: var(--navy);
-}
-
-.wall-sub {
-  font-size: 0.95rem;
-  color: var(--navy-muted);
-  font-style: italic;
-}
-
-.polaroids-pinboard {
+.upload-dropzone {
+  border: 2px dashed rgba(251, 191, 36, 0.65);
+  border-radius: var(--radius-md);
+  padding: 24px 18px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.7);
+  transition: all 0.25s ease;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  max-width: 860px;
-  margin: 32px auto 0;
-}
-
-.polaroid-pin-card {
-  background: var(--white);
-  padding: 12px 12px 18px;
-  border-radius: 4px;
-  box-shadow: 0 14px 28px rgba(23, 43, 77, 0.08);
-  position: relative;
-  width: 170px;
-  cursor: default;
-  transition: transform 0.3s var(--ease-elastic), box-shadow 0.3s ease;
-  user-select: none;
-}
-.polaroid-pin-card:hover {
-  transform: scale(1.08) rotate(0deg) !important;
-  box-shadow: 0 20px 40px rgba(23, 43, 77, 0.16);
-  z-index: 20;
-}
-
-.pin-washi-tape {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 46px;
-  height: 15px;
-  background: var(--tape-color);
-  border-radius: 2px;
-}
-
-.pin-photo-frame {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: #EFF3F8;
-  border-radius: 2px;
-  overflow: hidden;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  user-select: none;
 }
-.pin-photo-frame img {
+
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
+  border-color: var(--gold-primary);
+  background: rgba(251, 191, 36, 0.14);
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.35);
+  transform: scale(1.01);
+}
+
+.upload-browse-chip {
+  margin-top: 6px;
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid var(--gold-primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+}
+
+.upload-preview-container {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-height: 220px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+  display: none;
+  background: #020617;
+  border: 2px solid var(--gold-primary);
+}
+
+.upload-preview-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
   display: block;
 }
 
-.pin-placeholder {
-  font-size: 2.2rem;
-  color: var(--navy-muted);
-}
-
-.pin-friend-name {
-  font-size: 0.84rem;
-  font-weight: 800;
-  color: var(--navy);
-  margin-top: 8px;
-  text-align: center;
-}
-
-.pin-caption {
-  font-family: var(--font-hand);
-  font-size: 1.25rem;
-  color: var(--arg-blue);
-  text-align: center;
-  line-height: 1.25;
-  margin-top: 2px;
-}
-
-.messi-taper-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  max-width: 860px;
-  margin: 32px auto 0;
-  padding: 12px 20px;
-  background: var(--white);
-  border: 1.5px solid rgba(23, 43, 77, 0.1);
-  border-radius: 20px;
-}
-
-.messi-taper-doodle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.messi-taper-icon {
-  font-size: 1.5rem;
-}
-
-.messi-tape-speech {
-  font-family: var(--font-hand);
-  font-size: 1.45rem;
-  color: var(--navy);
-}
-
-/* ================= SCENE 6: THE CROWD ================= */
-
-/* ================= SCENE 6: THE CROWD ================= */
-.scene-crowd {
-  background: linear-gradient(180deg, #F3F8FD 0%, var(--bg-cream) 100%);
-}
-
-.crowd-photo-strip {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-
-.crowd-thumb-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid var(--white);
-  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.08);
-  background-size: cover;
-  background-position: center;
-  background-color: var(--arg-blue-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-}
-
-.crowd-poetic-lines p {
-  font-size: 1.25rem;
-  color: var(--navy-muted);
-}
-.funny-tint {
-  font-family: var(--font-hand);
-  font-size: 1.7rem !important;
-  color: var(--navy) !important;
-}
-
-.crowd-common-note {
-  font-size: 1.15rem;
-  color: var(--navy-muted);
-}
-
-.crowd-proud-proclamation {
-  font-family: var(--font-round);
-  font-size: clamp(2.4rem, 6.5vw, 3.8rem);
-  font-weight: 900;
-  color: var(--navy);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.crowd-always-tag {
-  font-family: var(--font-hand);
-  font-size: 2.3rem;
-  color: var(--arg-blue);
-}
-
-.corner-promise-card {
-  font-size: 1.2rem;
-  color: var(--navy);
-}
-
-.heart-winner-box {
-  margin-top: 16px;
-}
-.heart-intro {
-  font-family: var(--font-hand);
-  font-size: 1.8rem;
-  color: var(--gold);
-}
-.heart-winner-title {
-  font-family: var(--font-round);
-  font-size: clamp(2rem, 5vw, 2.8rem);
-  font-weight: 900;
-  color: var(--navy);
-}
-
-/* ================= SCENE 7: MESSI RUINS THE EMOTION ================= */
-.scene-messi-ruins {
-  background: var(--bg-cream);
-}
-
-.messi-deadpan-actor {
-  width: 140px;
-  height: 180px;
-  margin: 0 auto;
-}
-.messi-svg-large {
-  width: 100%;
-  height: 100%;
-}
-
-.deadpan-short {
-  font-size: 1.3rem;
-  color: var(--navy-muted);
-}
-
-.deadpan-punchline {
-  font-family: var(--font-round);
-  font-size: clamp(2rem, 5.5vw, 3rem);
-  font-weight: 900;
-  color: var(--navy);
-}
-
-/* ================= SCENE 8: INTERACTIVE FOOTBALL GAME ================= */
-.scene-football-game {
-  background: linear-gradient(180deg, #F0F6FD 0%, #E8F5E9 65%, #C8E6C9 100%);
-  padding: 20px 14px 40px;
-  overflow: hidden;
-  position: relative;
-}
-
-.game-scene-wrapper {
-  width: 100%;
-  max-width: 680px;
-  position: relative;
-  z-index: 10;
-}
-
-.game-badge-round {
-  display: inline-block;
-  font-family: var(--font-round);
-  font-size: 0.95rem;
-  font-weight: 900;
-  color: #FFFFFF;
-  background: var(--navy);
-  padding: 6px 18px;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.15);
-}
-
-.game-title {
-  font-family: var(--font-round);
-  font-size: clamp(2rem, 5.5vw, 2.9rem);
-  font-weight: 900;
-  color: var(--navy);
-  margin-top: 4px;
-}
-
-.game-subtitle {
-  font-size: 1.05rem;
-  color: var(--navy-muted);
-}
-
-.game-whisper {
-  font-family: var(--font-hand);
-  font-size: 1.55rem;
-  color: var(--gold);
-}
-
-/* Pitch Arena */
-.game-pitch-arena {
-  background: #A9D18E;
-  border: 3px solid #86B86B;
-  border-radius: 24px;
-  position: relative;
-  min-height: 440px;
-  margin-top: 18px;
-  overflow: hidden;
-  box-shadow: 0 16px 40px rgba(23, 43, 77, 0.12);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  cursor: crosshair;
-}
-
-.game-pitch-sky {
+.upload-preview-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 80px;
-  background: linear-gradient(180deg, rgba(23, 43, 77, 0.25) 0%, transparent 100%);
-  pointer-events: none;
-}
-
-/* The Goal Post */
-.game-goal-frame {
-  position: relative;
-  width: 90%;
-  max-width: 440px;
-  height: 130px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 4px solid var(--white);
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-.goal-net-pattern {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(45deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
-    linear-gradient(-45deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
-  background-size: 14px 14px;
-  pointer-events: none;
-}
-
-/* 3 Interactive Targets */
-.goal-targets-container {
-  position: absolute;
-  bottom: 12px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  padding: 0 16px;
-  z-index: 5;
-}
-
-.goal-target {
-  background: var(--white);
-  border: 2px solid var(--navy);
-  border-radius: 14px;
+  right: 0;
   padding: 8px 12px;
+  background: linear-gradient(180deg, rgba(3, 7, 18, 0.9) 0%, rgba(3, 7, 18, 0) 100%);
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 2px;
-  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.15);
+}
+
+.upload-preview-status {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.upload-error-box {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  display: none;
+  animation: shakeError 0.3s ease;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.upload-input-text {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: #ffffff;
+  font-family: var(--font-main);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.upload-input-text:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.upload-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+  color: #030712;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px var(--gold-glow);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.upload-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ====================================================================
+   SLIDESHOW PHOTO DELETION & MANAGEMENT STYLES
+   ==================================================================== */
+.delete-photo-btn {
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  transition: transform 0.2s var(--ease-elastic);
-}
-.goal-target:hover {
-  transform: scale(1.1);
-}
-.target-icon { font-size: 1.2rem; }
-.target-name {
-  font-family: var(--font-round);
-  font-size: 0.8rem;
-  font-weight: 900;
-  color: var(--navy);
+  transition: all 0.2s ease;
 }
 
-.target-proud { border-color: #27AE60; }
-.target-happy { border-color: #F5B041; }
-.target-vamos { border-color: var(--arg-blue); }
+.delete-photo-btn:hover {
+  background: rgba(239, 68, 68, 0.45);
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+}
 
-/* Overthinking Goalkeeper for Round 3 */
-.goalkeeper-actor {
-  position: absolute;
-  top: 25px;
-  left: 45%;
-  transform: translateX(-50%);
+/* Manage Photos Tab Content inside Modal */
+.manage-photos-grid {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-top: 8px;
+}
+
+.manage-photo-card {
+  display: flex;
   align-items: center;
-  z-index: 6;
-  animation: keeperPatrol 2.5s infinite ease-in-out alternate;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  transition: background 0.2s ease;
 }
-@keyframes keeperPatrol {
-  0% { left: 20%; transform: translateX(0); }
-  100% { left: 75%; transform: translateX(0); }
+
+.manage-photo-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(251, 191, 36, 0.35);
 }
-.keeper-emoji { font-size: 2.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
-.keeper-jersey {
-  font-family: var(--font-round);
-  font-size: 0.65rem;
-  font-weight: 900;
-  background: #E74C3C;
-  color: #FFFFFF;
-  padding: 2px 6px;
+
+.manage-photo-thumb {
+  width: 52px;
+  height: 52px;
   border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  flex-shrink: 0;
+}
+
+.manage-photo-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.manage-photo-title {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manage-photo-tag {
+  font-size: 11px;
+  color: var(--argentina-cyan);
+}
+
+.manage-photo-del-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
-/* Speech Bubble Above Messi in Game */
-.game-speech-bubble {
-  position: absolute;
-  bottom: 155px;
-  left: 30px;
-  background: var(--white);
-  border: 2px solid var(--navy);
-  border-radius: 14px;
-  padding: 8px 16px;
-  max-width: 250px;
-  box-shadow: 0 6px 18px rgba(23, 43, 77, 0.12);
-  z-index: 20;
-}
-.game-speech-bubble p {
-  font-family: var(--font-hand);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--navy);
-  line-height: 1.25;
+.manage-photo-del-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
 }
 
-/* Messi Character Standing on Pitch */
-.game-messi-character {
-  position: absolute;
-  bottom: 25px;
-  left: 30px;
-  width: 85px;
-  height: 115px;
-  z-index: 15;
-  animation: messiIdleBreath 3s infinite ease-in-out alternate;
-  pointer-events: none;
-  transition: all 0.4s ease;
-}
-@keyframes messiIdleBreath {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-4px) scale(1.02); }
-}
-
-.game-messi-character.celebrating {
-  animation: messiJumpCelebration 0.45s infinite alternate var(--ease-elastic);
-}
-@keyframes messiJumpCelebration {
-  0% { transform: translateY(0) scale(1) rotate(-4deg); }
-  100% { transform: translateY(-24px) scale(1.15) rotate(4deg); }
-}
-
-.game-messi-character.dribbling {
-  animation: messiDribbleRun 0.5s infinite alternate ease-in-out;
-}
-@keyframes messiDribbleRun {
-  0% { transform: translateX(0) translateY(0) rotate(-2deg); }
-  100% { transform: translateX(45px) translateY(-8px) rotate(4deg); }
-}
-
-.game-messi-character.behind-player {
-  left: 50% !important;
-  bottom: 95px !important;
-  transform: translateX(-50%) scale(0.95);
-}
-
-.game-messi-svg { width: 100%; height: 100%; }
-
-/* Goalkeeper Dynamic Animations */
-.goalkeeper-actor.diving-left {
-  animation: none !important;
-  left: 25% !important;
-  transform: translateX(-50%) rotate(-35deg) scale(1.15) !important;
-  transition: all 0.22s ease-out;
-}
-.goalkeeper-actor.diving-right {
-  animation: none !important;
-  left: 75% !important;
-  transform: translateX(-50%) rotate(35deg) scale(1.15) !important;
-  transition: all 0.22s ease-out;
-}
-.goalkeeper-actor.celebrating {
-  animation: keeperHappyDance 0.35s infinite alternate ease-in-out !important;
-}
-@keyframes keeperHappyDance {
-  0% { transform: translateX(-50%) translateY(0) scale(1); }
-  100% { transform: translateX(-50%) translateY(-18px) scale(1.25) rotate(10deg); }
-}
-
-/* Stadium Lights Brightening for Round 3 */
-.game-pitch-arena.stadium-bright {
-  box-shadow: 0 0 50px rgba(255, 255, 200, 0.45), 0 16px 40px rgba(23, 43, 77, 0.2) !important;
-  border-color: #A3E4D7 !important;
-}
-.game-pitch-arena.stadium-bright .game-floodlights-glow {
-  opacity: 1 !important;
-  filter: brightness(1.6);
-}
-
-/* The Football */
-.game-pitch-ball {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 48px;
-  z-index: 20;
-  cursor: grab;
-  transition: transform 0.05s linear;
-}
-.game-pitch-ball:active { cursor: grabbing; }
-.svg-game-ball { width: 100%; height: 100%; filter: drop-shadow(0 6px 8px rgba(23, 43, 77, 0.2)); }
-
-/* Aim Trajectory line */
-.aim-trajectory {
-  position: absolute;
-  bottom: 64px;
-  left: 50%;
-  height: 120px;
-  width: 2px;
-  border-left: 2.5px dashed var(--white);
-  transform-origin: bottom center;
-  z-index: 10;
-  pointer-events: none;
-}
-.aim-arrow {
-  position: absolute;
-  top: -16px;
-  left: -8px;
-  color: var(--white);
-  font-size: 1.2rem;
-  transform: rotate(-90deg);
-}
-
-/* Power Meter */
-.power-meter-container {
-  position: absolute;
-  bottom: 12px;
-  right: 18px;
-  width: 140px;
-  z-index: 25;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 6px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(23, 43, 77, 0.15);
-}
-.power-meter-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--navy);
+/* Final Screen Celebration Podium: Sabari & Messi United with Giant Trophy */
+.final-screen-celebration {
   display: flex;
-  justify-content: space-between;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 28px;
+  margin-top: 14px;
+  flex-wrap: wrap;
 }
-.power-meter-track {
+
+@keyframes floatTrophy {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* ====================================================================
+   CRISTIANO RONALDO HIGH-DETAIL SVG CUTOUT (MATCHING MESSI QUALITY)
+   ==================================================================== */
+.ronaldo-cutout-svg {
   width: 100%;
-  height: 8px;
-  background: #CBD6E2;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-.power-meter-fill {
-  width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #2ECC71, #F39C12, #E74C3C);
-  transition: width 0.05s linear;
+  max-width: 200px;
+  max-height: 310px;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.75));
+  transition: transform 0.3s ease;
+  overflow: visible;
 }
 
-/* Control Tips */
-.game-control-tips {
-  position: absolute;
-  top: 12px;
-  left: 14px;
-  font-size: 0.78rem;
-  color: var(--navy);
-  background: rgba(255, 255, 255, 0.85);
-  padding: 4px 10px;
-  border-radius: 10px;
-  z-index: 10;
-}
-.desktop-tip { display: block; }
-.mobile-tip { display: none; }
-@media (max-width: 680px) {
-  .desktop-tip { display: none; }
-  .mobile-tip { display: block; }
+.ronaldo-cutout-svg.hero-cutout {
+  max-width: 240px;
+  max-height: 360px;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(239, 68, 68, 0.35));
 }
 
-/* Round 2 Assist Timing Indicator */
-.timing-assist-box {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 30;
-}
-.assist-timing-ring {
-  width: 70px;
-  height: 70px;
-  border: 3px solid #2ECC71;
-  border-radius: 50%;
-  animation: timingPulse 1.2s infinite ease-out;
-}
-@keyframes timingPulse {
-  0% { transform: scale(1.6); opacity: 0.2; }
-  50% { transform: scale(1); opacity: 1; border-color: var(--gold); }
-  100% { transform: scale(1.6); opacity: 0.2; }
-}
-.assist-timing-text {
-  font-family: var(--font-round);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--white);
-  background: var(--navy);
-  padding: 2px 8px;
-  border-radius: 8px;
-  margin-top: 6px;
-}
-
-/* Retry Area */
-.retry-action-area {
+.ronaldo-aura-glow {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 50;
-  animation: bubblePop 0.3s var(--ease-elastic);
+  width: 280px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(185, 28, 28, 0.22) 50%, rgba(0, 0, 0, 0) 75%);
+  filter: blur(28px);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulseRonaldoAura 2.4s infinite alternate ease-in-out;
 }
 
-/* ================= HAT-TRICK CELEBRATION MODAL ================= */
-.hat-trick-modal {
-  position: absolute;
-  top: 0;
-  left: 0;
+@keyframes pulseRonaldoAura {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.98; }
+}
+
+/* Ronaldo Lip-sync and Mouth Speaking */
+.ronaldo-cutout-svg .mouth-speaking { display: none; }
+.ronaldo-cutout-svg .mouth-resting { display: block; }
+
+.speaking .ronaldo-cutout-svg .mouth-resting,
+.ronaldo-cutout-svg.speaking .mouth-resting {
+  display: none !important;
+}
+
+.speaking .ronaldo-cutout-svg .mouth-speaking,
+.ronaldo-cutout-svg.speaking .mouth-speaking {
+  display: block !important;
+}
+
+.speaking .ronaldo-cutout-svg .mouth-cavity,
+.ronaldo-cutout-svg.speaking .mouth-cavity {
+  animation: svgTalkCavity 0.22s infinite alternate ease-in-out !important;
+  transform-origin: 120px 107px;
+}
+
+.speaking .ronaldo-cutout-svg .mouth-teeth,
+.ronaldo-cutout-svg.speaking .mouth-teeth {
+  animation: svgTalkTeeth 0.22s infinite alternate ease-in-out !important;
+  transform-origin: 120px 104px;
+}
+
+.speaking .ronaldo-cutout-svg .mouth-tongue,
+.ronaldo-cutout-svg.speaking .mouth-tongue {
+  animation: svgTalkTongue 0.18s infinite alternate ease-in-out !important;
+  transform-origin: 120px 111px;
+}
+
+.speaking .ronaldo-cutout-svg .ronaldo-head-group,
+.ronaldo-cutout-svg.speaking .ronaldo-head-group {
+  animation: svgHeadNod 1.25s infinite ease-in-out !important;
+  transform-origin: 120px 125px;
+}
+
+.speaking .ronaldo-cutout-svg .soundwave-rings .sw-1,
+.ronaldo-cutout-svg.speaking .soundwave-rings .sw-1 {
+  animation: svgSoundwave 1.1s infinite ease-out 0s !important;
+}
+.speaking .ronaldo-cutout-svg .soundwave-rings .sw-2,
+.ronaldo-cutout-svg.speaking .soundwave-rings .sw-2 {
+  animation: svgSoundwave 1.1s infinite ease-out 0.35s !important;
+}
+
+/* Ronaldo Red Equalizer Bars */
+#tunnelRonaldoEqualizer .eq-bar {
+  background: #ef4444;
+}
+.speaking #tunnelRonaldoEqualizer .eq-bar,
+#tunnelRonaldoCutout.speaking ~ #tunnelRonaldoEqualizer .eq-bar,
+.speaking .ronaldo-avatar-box #tunnelRonaldoEqualizer .eq-bar {
+  animation: eqRonaldoDance 0.35s infinite alternate ease-in-out;
+}
+@keyframes eqRonaldoDance {
+  0% { height: 5px; background: #ef4444; }
+  100% { height: 22px; background: #fde047; box-shadow: 0 0 8px rgba(239, 68, 68, 0.8); }
+}
+
+/* ====================================================================
+   SABARI KRISHNA HIGH-DETAIL ANIMATED SVG CUTOUT (WORLDSKILLS CHAMPION)
+   ==================================================================== */
+.sabari-cutout-svg {
   width: 100%;
   height: 100%;
-  background: rgba(23, 43, 77, 0.65);
-  backdrop-filter: blur(8px);
-  z-index: 80;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  max-width: 200px;
+  max-height: 310px;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.75));
+  transition: transform 0.3s ease;
+  overflow: visible;
+  animation: sabariBreathe 4s ease-in-out infinite;
 }
 
-.hat-trick-card {
-  background: var(--white);
-  border: 3px solid var(--navy);
-  border-radius: 24px;
-  padding: 28px 24px;
-  max-width: 440px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-  animation: bubblePop 0.4s var(--ease-elastic);
+.sabari-cutout-svg.hero-cutout {
+  max-width: 240px;
+  max-height: 360px;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(255, 153, 51, 0.35));
 }
 
-.hat-trick-badge {
-  display: inline-block;
-  font-size: 0.85rem;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  color: #27AE60;
-  background: #E8F8F0;
-  padding: 4px 14px;
-  border-radius: 12px;
+@keyframes sabariBreathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
-.hat-trick-title {
-  font-family: var(--font-round);
-  font-size: clamp(2rem, 5.5vw, 3rem);
-  font-weight: 900;
-  color: var(--navy);
-  margin-top: 4px;
+.sabari-aura-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 153, 51, 0.45) 0%, rgba(19, 136, 8, 0.22) 50%, rgba(0, 0, 0, 0) 75%);
+  filter: blur(28px);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulseSabariAura 2.6s infinite alternate ease-in-out;
 }
 
-.hat-trick-subtitle {
-  font-family: var(--font-round);
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--gold);
+@keyframes pulseSabariAura {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.55; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.95; }
 }
 
-.funny-score-card {
-  background: var(--bg-cream);
-  border: 1px dashed var(--navy);
-  border-radius: 14px;
-  padding: 14px 18px;
-  text-align: left;
+.sabari-avatar-box {
+  position: relative;
+  width: 220px;
+  height: 330px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-.score-line {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-}
-.score-line span { color: var(--navy-muted); font-weight: 600; }
-.score-line strong { color: var(--navy); font-weight: 800; }
-.highlight-gold strong { color: #B9770E; }
-
-.messi-hat-trick-note p {
-  font-family: var(--font-hand);
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: var(--navy);
-}
-.status-stamp {
-  display: inline-block;
-  font-size: 0.85rem;
-  font-weight: 900;
-  color: var(--arg-blue);
-  background: var(--arg-blue-light);
-  padding: 4px 12px;
-  border-radius: 10px;
-  margin-top: 4px;
-}
-
-/* Scene 9: Surrounding Crowd Photos Circle */
-.final-crowd-circle {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-.final-crowd-circle .pin-photo-frame {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  border: 2.5px solid var(--white);
-  box-shadow: 0 4px 12px rgba(23, 43, 77, 0.12);
-  background-color: var(--arg-blue-light);
-  overflow: hidden;
-}
-.final-crowd-circle .pin-photo-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.closing-smile-card {
-  background: #FFF5F5;
-  border: 1.5px solid #FFDCDC;
-  border-radius: 20px;
-  padding: 12px 24px;
-  display: inline-block;
-}
-.closing-smile-card p {
-  font-family: var(--font-hand);
-  font-size: 1.6rem;
-  color: #C0392B;
-}
-
-.final-team-note {
-  font-family: var(--font-hand);
-  font-size: 1.8rem;
-  color: var(--arg-blue);
-  margin-top: 4px;
-}
-
-.final-messi-trophy-display {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin: 16px auto;
-}
-.final-trophy-bounce {
-  font-size: 3.6rem;
-  animation: partyBounce 1.2s infinite alternate var(--ease-elastic);
-}
-.final-messi-figure {
-  width: 90px;
-  height: 120px;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
-.final-quote-head {
-  font-family: var(--font-hand);
-  font-size: 2rem;
-  color: var(--gold);
+.ronaldo-avatar-box {
+  position: relative;
+  width: 220px;
+  height: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
-.final-quote-body {
-  font-family: var(--font-round);
-  font-size: clamp(2.4rem, 6.5vw, 3.8rem);
-  font-weight: 900;
-  color: var(--navy);
-  line-height: 1.1;
+/* ====================================================================
+   MASTER MOBILE RESPONSIVENESS SYSTEM (PHONE & TABLET ADAPTIVE)
+   ==================================================================== */
+
+@media (max-width: 768px) {
+  /* Top HUD */
+  .top-hud {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .hud-logo {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .ball-badge {
+    font-size: 18px;
+  }
+
+  .hud-title-group h1 {
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  .hud-title-group span {
+    display: none;
+  }
+
+  .hud-story-tracker {
+    gap: 4px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .hud-story-step {
+    font-size: 9.5px;
+    padding: 4px 10px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 115px;
+  }
+
+  .hud-story-step::before {
+    font-size: 10px;
+  }
+
+  .hud-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .hud-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  /* Scene Viewport & General Stage - perfectly centered vertically & horizontally */
+  .scene {
+    padding-top: 56px;
+    padding-bottom: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scene#scene-match {
+    justify-content: flex-start;
+    padding-bottom: 0;
+  }
+
+  .messi-stage-wrapper,
+  .stadium-return-overlay,
+  .final-screen-card {
+    padding: 6px 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mascot Duo (Scene 2: Messi vs Ronaldo) */
+  .match-vs-banner {
+    margin-bottom: 6px;
+  }
+
+  .match-vs-badge {
+    font-size: 9.5px;
+    padding: 2px 10px;
+    letter-spacing: 1px;
+  }
+
+  .match-vs-title {
+    font-size: clamp(20px, 5.5vw, 26px);
+    letter-spacing: 1px;
+    line-height: 1.15;
+  }
+
+  .mascot-duo-wrapper {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  .messi-avatar-box,
+  .ronaldo-avatar-box,
+  .sabari-avatar-box,
+  .standing-messi-podium {
+    width: clamp(130px, 40vw, 165px) !important;
+    height: auto !important;
+    min-width: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0 auto;
+  }
+
+  .hero-cutout,
+  .messi-cutout-svg,
+  .ronaldo-cutout-svg,
+  .sabari-cutout-svg {
+    width: 100% !important;
+    height: clamp(155px, 24vh, 205px) !important;
+    max-width: 100% !important;
+    object-fit: contain;
+    margin: 0 auto;
+  }
+
+  .messi-aura-glow,
+  .ronaldo-aura-glow,
+  .sabari-aura-glow {
+    width: 140px;
+    height: 180px;
+    filter: blur(18px);
+  }
+
+  .voice-equalizer {
+    height: 16px;
+    margin-top: 4px;
+    gap: 3.5px;
+  }
+
+  .messi-badge-status {
+    font-size: 9px !important;
+    padding: 3px 6px !important;
+    margin-top: 5px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.2px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Dialogue Cards */
+  .dialogue-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 14px;
+    gap: 8px;
+    border-radius: 14px;
+    margin: 8px auto 0 auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+  }
+
+  .dialogue-speaker {
+    margin-bottom: 0;
+  }
+
+  .speaker-tag {
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .dialogue-text-wrapper {
+    min-height: auto;
+    gap: 4px;
+  }
+
+  .dialogue-subtitle-en {
+    font-size: clamp(14px, 4vw, 16px);
+    line-height: 1.35;
+  }
+
+  .dialogue-text-es {
+    font-size: clamp(11.5px, 3.2vw, 13px);
+    line-height: 1.3;
+  }
+
+  .dialogue-options {
+    gap: 6px;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .dialogue-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 12.5px;
+  }
+
+  /* Scene 3: Football Match Arena */
+  .match-arena-wrapper {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    border-radius: 14px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(29, 94, 201, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .match-arena-wrapper.vertical-pitch-mode {
+    max-width: 100%;
+  }
+
+  #footballPitchCanvas {
+    width: 100%;
+    height: clamp(200px, 30vh, 260px);
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .match-arena-wrapper.vertical-pitch-mode #footballPitchCanvas {
+    height: clamp(300px, 44vh, 420px);
+  }
+
+  .match-scoreboard {
+    padding: 6px 10px;
+    background: rgba(3, 7, 18, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .team-badge-group .team-name {
+    font-size: 10px;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .match-score-num {
+    font-size: 19px;
+  }
+
+  .match-timer {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .orientation-toggle-btn {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .cinematic-moment-banner {
+    top: 50px;
+    padding: 5px 12px;
+    max-width: 90%;
+  }
+
+  .moment-title {
+    font-size: 11px;
+  }
+
+  .moment-sub {
+    font-size: 9.5px;
+  }
+
+  .arcade-controls-deck {
+    padding: 6px 8px 8px;
+    gap: 5px;
+  }
+
+  .arcade-controls-row {
+    gap: 4px;
+  }
+
+  .arcade-keyboard-legend {
+    display: none !important;
+  }
+
+  .mobile-dpad {
+    grid-template-columns: repeat(3, 36px);
+    grid-template-rows: repeat(3, 36px);
+    gap: 2px;
+  }
+
+  .dpad-btn {
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  .mobile-action-btns {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .mob-act-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .mob-act-btn .btn-emoji {
+    font-size: 15px;
+  }
+
+  .mob-act-btn .btn-title {
+    font-size: 7.5px;
+  }
+
+  .mob-act-btn .btn-key {
+    display: none;
+  }
+
+  .mobile-touch-hint {
+    display: block !important;
+    text-align: center;
+    font-size: 9px;
+    color: var(--gold-primary);
+    font-weight: 700;
+    padding: 2px 6px;
+    background: rgba(3, 7, 18, 0.85);
+    border-radius: var(--radius-full);
+    letter-spacing: 0.2px;
+  }
+
+  /* Scene 4: Brotherhood Hug */
+  .friendly-hug-stage {
+    gap: 8px !important;
+    width: 100%;
+  }
+
+  .giant-screen-title {
+    font-size: clamp(22px, 6vw, 30px);
+  }
+
+  .giant-screen-sub {
+    font-size: 10px;
+    padding: 0 8px;
+  }
+
+  /* Scene 5: Photo Slideshow */
+  .slideshow-fullpage-viewport {
+    width: 100%;
+    max-width: 100%;
+    padding: 6px 8px;
+    height: calc(100dvh - 65px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .slideshow-header {
+    margin-bottom: 2px;
+  }
+
+  .slideshow-title {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .slideshow-stage-frame {
+    max-height: clamp(240px, 48vh, 380px);
+    width: 100%;
+    border-width: 2px;
+  }
+
+  .slideshow-nav-arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .slideshow-nav-arrow.prev { left: 6px; }
+  .slideshow-nav-arrow.next { right: 6px; }
+
+  .slideshow-caption-bar {
+    padding: 10px 12px 8px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .slideshow-caption-left {
+    max-width: 100%;
+  }
+
+  .slideshow-tag-pill {
+    font-size: 8.5px;
+    padding: 2px 7px;
+  }
+
+  .slideshow-photo-title {
+    font-size: 13px;
+  }
+
+  .slideshow-photo-msg {
+    font-size: 14px;
+  }
+
+  .slideshow-bottom-strip {
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .slideshow-progress-dots {
+    max-width: 90%;
+  }
+
+  .slideshow-bottom-strip > div:last-child {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+  }
+
+  .slideshow-bottom-strip .ctrl-btn,
+  .slideshow-bottom-strip .dialogue-btn {
+    flex: 1;
+    font-size: 11px;
+    padding: 8px 10px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Scene 6: Personal Promise Blackout - perfectly centered */
+  .promise-blackout-screen {
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .promise-voice-active-indicator {
+    font-size: 9.5px;
+    padding: 5px 12px;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    max-width: 96%;
+    text-align: center;
+  }
+
+  .promise-blackout-layout {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin: auto 0;
+  }
+
+  .promise-messi-animated-wrapper {
+    width: 120px !important;
+    height: 170px !important;
+  }
+
+  .promise-active-subtitle-box {
+    padding: 14px;
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  .subtitle-box-header {
+    margin-bottom: 8px;
+    font-size: 9.5px;
+  }
+
+  .active-sub-text-en {
+    font-size: clamp(16px, 4.8vw, 19px);
+    line-height: 1.35;
+    min-height: auto;
+    margin-bottom: 6px;
+  }
+
+  .active-sub-text-es {
+    font-size: 12px;
+  }
+
+  /* Scene 7: Final Screen Celebration */
+  .final-screen-card {
+    padding: 16px 12px;
+    max-width: 100%;
+    max-height: calc(100dvh - 75px);
+    gap: 8px;
+    border-radius: 16px;
+  }
+
+  .final-screen-title {
+    font-size: clamp(24px, 6.5vw, 32px);
+    letter-spacing: 1.5px;
+  }
+
+  .final-screen-sub {
+    font-size: 11.5px;
+    letter-spacing: 0.8px;
+  }
+
+  .final-screen-farewell {
+    font-size: 15px;
+    margin-top: 2px;
+  }
+
+  .final-screen-celebration {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  .final-trophy-display {
+    margin-bottom: 6px !important;
+  }
+
+  .final-trophy-display > div:first-child {
+    font-size: 36px !important;
+  }
+
+  .final-trophy-display > div:last-child {
+    font-size: 8.5px !important;
+    letter-spacing: 1.5px !important;
+  }
+
+  #finalReplayActionsBox {
+    width: 100%;
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px !important;
+    margin-top: 12px !important;
+  }
+
+  #finalReplayActionsBox .dialogue-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 12.5px;
+  }
+
+  /* Loading Screen */
+  .loading-title {
+    font-size: 18px;
+    padding: 0 16px;
+  }
+
+  .loading-sub {
+    font-size: 12px;
+  }
+
+  .progress-track {
+    width: 220px;
+  }
+
+  .start-btn {
+    font-size: 14px;
+    padding: 12px 28px;
+  }
+
+  /* Modal Dialog */
+  .upload-modal {
+    padding: 8px;
+  }
+
+  .upload-modal-content {
+    padding: 14px;
+    max-height: 94vh;
+    border-radius: 14px;
+    gap: 10px;
+  }
+
+  .upload-tab-btn {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
 }
 
-.final-quote-always {
-  font-family: var(--font-hand);
-  font-size: 2.5rem;
-  color: var(--arg-blue);
+/* Compact screens (under 480px, e.g. iPhone, Pixel, Galaxy) */
+@media (max-width: 480px) {
+  #uploadPhotoHudBtn span:last-child,
+  #soundText,
+  #replayBtn span:last-child {
+    display: none !important;
+  }
+
+  .hud-btn {
+    padding: 6px 9px;
+  }
+
+  .hud-story-step {
+    max-width: 90px;
+    padding: 3px 8px;
+    font-size: 9px;
+  }
+
+  .hud-title-group h1 {
+    max-width: 110px;
+    font-size: 10px;
+  }
+
+  .messi-avatar-box,
+  .ronaldo-avatar-box,
+  .sabari-avatar-box {
+    width: clamp(120px, 40vw, 155px) !important;
+    height: clamp(160px, 26vh, 205px) !important;
+    margin: 0 auto;
+  }
+
+  /* Game controls: compact for narrow phones */
+  .arcade-controls-deck {
+    padding: 5px 6px 7px;
+    gap: 4px;
+  }
+
+  .arcade-instruction-strip {
+    font-size: 9.5px;
+    padding: 3px 8px;
+    gap: 5px;
+  }
+
+  .arcade-instruction-strip .strip-tag {
+    font-size: 8px;
+    padding: 1px 5px;
+  }
+
+  .mobile-dpad {
+    grid-template-columns: repeat(3, 34px);
+    grid-template-rows: repeat(3, 34px);
+    gap: 2px;
+  }
+
+  .dpad-btn {
+    font-size: 12px;
+  }
+
+  .arcade-center-panel {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .whistle-mini-btn {
+    font-size: 9px;
+    padding: 4px 8px;
+    white-space: nowrap;
+  }
+
+  .mobile-action-btns {
+    gap: 4px;
+  }
+
+  .mob-act-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .mob-act-btn .btn-emoji {
+    font-size: 13px;
+  }
+
+  .mob-act-btn .btn-title {
+    font-size: 6.5px;
+  }
 }
 
-.celebration-screen {
-  animation: bubblePop 0.5s var(--ease-elastic);
+/* Tiny screens (under 360px, e.g. Galaxy Fold folded) */
+@media (max-width: 360px) {
+  .hud-story-tracker {
+    display: none !important;
+  }
+
+  .hud-title-group h1 {
+    max-width: 130px;
+  }
 }
 
-.celebration-badge {
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #27AE60;
+/* Landscape mobile optimization */
+@media (max-height: 520px) and (orientation: landscape) {
+  .top-hud {
+    padding: 4px 10px;
+  }
+
+  .scene {
+    padding-top: 44px;
+  }
+
+  .messi-avatar-box,
+  .ronaldo-avatar-box,
+  .sabari-avatar-box {
+    height: 135px !important;
+    width: 95px !important;
+  }
+
+  .match-arena-wrapper {
+    height: 250px;
+  }
+
+  .mobile-touch-controls {
+    bottom: 4px;
+  }
+
+  .mobile-dpad {
+    grid-template-columns: repeat(3, 30px);
+    grid-template-rows: repeat(3, 30px);
+  }
+
+  .mob-act-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 8px;
+  }
 }
 
-.celebration-main-title {
-  font-family: var(--font-round);
-  font-size: clamp(2.4rem, 6.5vw, 4rem);
-  font-weight: 900;
-  color: var(--navy);
-  margin-top: 6px;
-}
 
-.celebration-sub {
-  font-family: var(--font-hand);
-  font-size: 2rem;
-  color: var(--navy-muted);
-}
 
-.celebration-shout {
-  font-family: var(--font-round);
-  font-size: clamp(2.4rem, 7vw, 4.2rem);
-  font-weight: 900;
-  color: var(--arg-blue);
-  letter-spacing: 1px;
-}
 
-/* Easter Egg Toast Alert */
-.scene-toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--navy);
-  color: var(--white);
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-family: var(--font-round);
-  font-size: 0.95rem;
-  font-weight: 700;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  animation: bubblePop 0.3s var(--ease-elastic);
-}
-
-/* Utilities */
-.hidden { display: none !important; }
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
-}
-.text-center { text-align: center; }
-.mt-2 { margin-top: 10px; }
-.mt-3 { margin-top: 18px; }
-.mt-4 { margin-top: 28px; }
-
-/* Mobile Adjustments */
-@media (max-width: 600px) {
-  .full-scene { padding: 30px 16px; }
-  .flying-annotations-grid { grid-template-columns: 1fr; }
-  .polaroid-pin-card { width: 140px; padding: 10px 10px 14px; }
-  .pin-caption { font-size: 1.1rem; }
-  .interactive-sandbox { gap: 12px; }
-  .sandbox-item { padding: 14px 16px; }
-  .huge-vamos-sticker { padding: 16px 36px; font-size: 1.7rem; }
-}
